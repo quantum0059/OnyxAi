@@ -1,9 +1,7 @@
+import "dotenv/config";
 import express from "express";
-// import mongoose from "mongoose";
-import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./src/routes/auth.route.js";
-dotenv.config();
 
 const app = express();
 app.use(express.json());
