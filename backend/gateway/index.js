@@ -1,11 +1,22 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import path from "path";
+import { fileURLToPath } from "url";
 import protect from "./middleware/authMiddleware.js";
 import { getCurrentUser } from "./controllers/user.controller.js";
 import { proxyWithHeader } from "./utils/proxyWithHeader.js";
+
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(currentDirectory, ".env") });
+
+for (const variableName of ["AUTH_SERVICE", "CHAT_SERVICE", "AGENT_SERVICE"]) {
+    if (!process.env[variableName]) {
+        throw new Error(`Missing required gateway configuration: ${variableName}`);
+    }
+}
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -28,7 +39,8 @@ app.use(
     })
 );
 
-app.use("/api/chat", protect, proxyWithHeader(process.env.CHAT_SERVICE));
+app.use("/api/chat", protect, proxyWithHeader(process.env.CHAT_SERVICE, "/api/chat"));
+app.use("/api/agent", protect, proxyWithHeader(process.env.AGENT_SERVICE, "/api/agent"));
 
 app.get("/", (req, res) => {
     return res.json({ message: "Gateway is running" });

@@ -1,9 +1,19 @@
 import { getModel } from "../config/llmModels.js";
+import { getMemory } from "../config/memory.js";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 
 const VALID_AGENTS = ["chat", "search", "coding", "pdf", "ppt", "vision"];
 
 export const router = async (state) => {
+    // If an agent is already explicitly selected and not "auto", bypass LLM routing
+    if (state.agent && state.agent !== "auto") {
+        const targetAgent = String(state.agent).toLowerCase().trim();
+        const normalized = targetAgent === "image" ? "vision" : targetAgent;
+        if (VALID_AGENTS.includes(normalized)) {
+            return { agent: normalized };
+        }
+    }
+
     const llm = await getModel("router");
 
     // Router brain prompt to classify which agent should handle the user's request
@@ -29,7 +39,7 @@ Your job is to analyze the user's input and classify it into exactly one of the 
    - Requests involving images, photos, OCR, describing visual content, or answering questions about pictures.
 
 Instructions:
-- Analyze the user prompt carefully.
+- Analyze the user prompt carefully, taking into account any recent conversation history for context on follow-up questions.
 - Return ONLY a valid JSON object in this exact format:
 {"agent": "<chosen_agent>"}
 - The value of "agent" MUST be one of: "chat", "search", "coding", "pdf", "ppt", "vision".
@@ -39,10 +49,30 @@ Instructions:
         ? state.prompt
         : JSON.stringify(state.prompt);
 
+    // Provide recent context for follow-up questions
+    let promptWithContext = userPrompt;
+    if (state.conversationId && state.userId) {
+        try {
+            const history = await getMemory(state.conversationId, state.userId);
+            const pastTurns = history
+                .filter(m => !(m.role === "user" && m.content === userPrompt))
+                .slice(-4);
+            if (pastTurns.length > 0) {
+                const contextSummary = pastTurns
+                    .map(m => `${m.role}: ${m.content.slice(0, 120)}`)
+                    .join("\n");
+                promptWithContext = `Recent conversation context:\n${contextSummary}\n\nCurrent user request:\n${userPrompt}`;
+            }
+        } catch {
+            // If fetching memory fails, proceed with just userPrompt
+        }
+    }
+
     const response = await llm.invoke([
         new SystemMessage(systemPrompt),
-        new HumanMessage(userPrompt),
+        new HumanMessage(promptWithContext),
     ]);
+
 
     let selectedAgent = "chat";
 
