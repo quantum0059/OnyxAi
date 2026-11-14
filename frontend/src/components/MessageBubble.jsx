@@ -12,6 +12,9 @@ import {
     HiOutlineSparkles,
     HiOutlineExclamationTriangle,
     HiOutlineCodeBracket,
+    HiOutlineDocumentText,
+    HiOutlineComputerDesktop,
+    HiOutlineArrowDownTray,
 } from 'react-icons/hi2';
 import { useChatContext } from '../contexts/ChatContext';
 
@@ -343,22 +346,36 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                     {/* Artifact attachments */}
                     {Array.isArray(message.artifacts) && message.artifacts.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                            {message.artifacts.map((art, idx) => (
-                                <button
-                                    key={art.id || idx}
-                                    type="button"
-                                    onClick={() => openArtifact(art)}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border-muted bg-[#12141a] hover:bg-[#1a1d26] hover:border-accent-border transition-colors text-xs font-medium text-text-primary cursor-pointer shadow-sm"
-                                >
-                                    <HiOutlineCodeBracket size={15} className="text-accent-hover" />
-                                    <span>View {art.type || 'Artifact'}</span>
-                                    {Array.isArray(art.files) && art.files.length > 0 && (
-                                        <span className="text-[10px] text-text-muted bg-border-muted px-1.5 py-0.5 rounded-md">
-                                            {art.files.length} {art.files.length === 1 ? 'file' : 'files'}
-                                        </span>
-                                    )}
-                                </button>
-                            ))}
+                            {message.artifacts.map((art, idx) => {
+                                const isPdf = art.type?.toLowerCase() === 'pdf' || art.title?.toLowerCase().endsWith('.pdf');
+                                const isPpt = art.type?.toLowerCase() === 'presentation' || art.type?.toLowerCase() === 'ppt' || art.title?.toLowerCase().endsWith('.pptx');
+                                const Icon = isPpt ? HiOutlineComputerDesktop : isPdf ? HiOutlineDocumentText : HiOutlineCodeBracket;
+                                const badgeColor = isPpt
+                                    ? 'bg-amber-500/10 text-amber-400'
+                                    : isPdf
+                                    ? 'bg-rose-500/10 text-rose-400'
+                                    : 'bg-indigo-500/10 text-indigo-400';
+
+                                return (
+                                    <button
+                                        key={art.id || idx}
+                                        type="button"
+                                        onClick={() => openArtifact(art)}
+                                        className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl border border-border-muted bg-[#12141a] hover:bg-[#1a1d26] hover:border-accent-border transition-all text-xs font-medium text-text-primary cursor-pointer shadow-sm group/btn max-w-sm"
+                                    >
+                                        <div className="flex items-center gap-2.5 truncate">
+                                            <div className={`p-1.5 rounded-lg ${badgeColor}`}>
+                                                <Icon size={16} />
+                                            </div>
+                                            <div className="text-left truncate">
+                                                <div className="font-semibold text-text-primary truncate">{art.title || 'Document'}</div>
+                                                <div className="text-[10px] text-text-muted">{art.type || 'Artifact'}</div>
+                                            </div>
+                                        </div>
+                                        <HiOutlineArrowDownTray size={14} className="text-text-muted group-hover/btn:text-text-primary shrink-0 transition-colors" />
+                                    </button>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

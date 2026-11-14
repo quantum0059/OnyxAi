@@ -14,6 +14,7 @@ import {
     HiOutlineXMark,
     HiOutlineSparkles,
     HiOutlineCheck,
+    HiOutlineArrowUpCircle,
 } from 'react-icons/hi2';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../utils/firebase';
@@ -33,6 +34,7 @@ import { getConversationMessages } from '../features/getConversationMessages';
 import { updateConversation } from '../features/updateConversation';
 import { useChatContext } from '../contexts/ChatContext';
 import api from '../../utils/axios';
+import UpgradePlanModal from './UpgradePlanModal';
 
 /* ─────────────────────────────────────────────
    Constants
@@ -259,7 +261,7 @@ const HistoryItem = ({ item, isActive, onSelect, onRename, onDelete }) => {
 /* ─────────────────────────────────────────────
    UserDropdown — click-outside aware
    ───────────────────────────────────────────── */
-const UserDropdown = ({ userData, onLogout, onClose }) => {
+const UserDropdown = ({ userData, onLogout, onOpenUpgrade, onClose }) => {
     const ref = useRef(null);
 
     useEffect(() => {
@@ -279,7 +281,7 @@ const UserDropdown = ({ userData, onLogout, onClose }) => {
             {/* Identity row */}
             <div className="flex items-center gap-2.5 px-3 py-2.5 border-b border-border-subtle">
                 <UserAvatar userData={userData} />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-medium text-text-primary truncate leading-snug">
                         {userData.name}
                     </p>
@@ -288,6 +290,22 @@ const UserDropdown = ({ userData, onLogout, onClose }) => {
             </div>
 
             {/* Actions */}
+            <button
+                role="menuitem"
+                onClick={() => {
+                    onClose();
+                    onOpenUpgrade?.();
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 text-[13px] text-text-primary hover:bg-border-subtle transition-colors cursor-pointer group/up"
+            >
+                <div className="flex items-center gap-2.5">
+                    <HiOutlineSparkles size={15} className="text-indigo-400" />
+                    <span>Upgrade plan</span>
+                </div>
+                <span className="text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                    Pro
+                </span>
+            </button>
             <button
                 role="menuitem"
                 onClick={onClose}
@@ -321,6 +339,7 @@ const SideBar = () => {
 
     const [query, setQuery] = useState('');
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
     // Fetch conversations from backend feature on user login
     useEffect(() => {
@@ -585,38 +604,62 @@ const SideBar = () => {
                 {/* User Profile Footer */}
                 {userData && (
                     <div className="shrink-0 px-2 pb-3 pt-2 border-t border-border-subtle relative">
-                        <button
-                            onClick={() => setUserMenuOpen((o) => !o)}
-                            aria-label="Open account menu"
-                            aria-expanded={userMenuOpen}
-                            aria-haspopup="menu"
-                            className="w-full flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-border-subtle transition-colors cursor-pointer group"
-                        >
-                            <UserAvatar userData={userData} />
-                            <div className="flex-1 min-w-0 text-left">
-                                <p className="text-[13px] font-medium text-text-primary truncate leading-tight">
-                                    {userData.name}
-                                </p>
-                                <p className="text-[11px] text-text-muted truncate">
-                                    {userData.email}
-                                </p>
-                            </div>
-                            <HiOutlineEllipsisHorizontal
-                                size={16}
-                                className="shrink-0 text-text-muted opacity-80 group-hover:opacity-100 transition-opacity"
-                            />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => setUserMenuOpen((o) => !o)}
+                                aria-label="Open account menu"
+                                aria-expanded={userMenuOpen}
+                                aria-haspopup="menu"
+                                className="flex-1 min-w-0 flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-border-subtle transition-colors cursor-pointer group"
+                            >
+                                <UserAvatar userData={userData} />
+                                <div className="flex-1 min-w-0 text-left">
+                                    <p className="text-[13px] font-medium text-text-primary truncate leading-tight">
+                                        {userData.name}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/25">
+                                            {userData.plan || 'Free'}
+                                        </span>
+                                        <span className="text-[11px] text-text-muted truncate">
+                                            • {userData.credits ?? 100} credits
+                                        </span>
+                                    </div>
+                                </div>
+                                <HiOutlineEllipsisHorizontal
+                                    size={16}
+                                    className="shrink-0 text-text-muted opacity-80 group-hover:opacity-100 transition-opacity"
+                                />
+                            </button>
+
+                            {/* Direct Upgrade button next to user profile (matches ChatGPT screenshot) */}
+                            <button
+                                onClick={() => setUpgradeModalOpen(true)}
+                                aria-label="Upgrade plan"
+                                title="Upgrade plan"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-[#22232a] hover:bg-indigo-600 hover:text-white text-[#c6c9d8] border border-white/[0.08] transition-all duration-150 cursor-pointer shrink-0"
+                            >
+                                Upgrade
+                            </button>
+                        </div>
 
                         {userMenuOpen && (
                             <UserDropdown
                                 userData={userData}
                                 onLogout={handleLogout}
+                                onOpenUpgrade={() => setUpgradeModalOpen(true)}
                                 onClose={() => setUserMenuOpen(false)}
                             />
                         )}
                     </div>
                 )}
             </aside>
+
+            {/* Upgrade Plan Modal / Drawer */}
+            <UpgradePlanModal
+                isOpen={upgradeModalOpen}
+                onClose={() => setUpgradeModalOpen(false)}
+            />
         </>
     );
 };

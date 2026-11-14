@@ -9,6 +9,7 @@ import {
     HiOutlineSparkles,
     HiOutlineCpuChip,
     HiOutlineBars3,
+    HiOutlineBolt,
 } from 'react-icons/hi2';
 import { useSelector, useDispatch } from 'react-redux';
 import { useChatContext } from '../contexts/ChatContext';
@@ -49,6 +50,7 @@ const TopBar = () => {
     const { currentConversation, currentConversationId } = useSelector(
         (state) => state.conversations
     );
+    const { userData } = useSelector((state) => state.user);
 
     // Inline title edit synchronized with Redux current conversation
     const [title, setTitle] = useState(currentConversation?.title || 'New conversation');
@@ -281,10 +283,26 @@ const TopBar = () => {
                 </div>
             </div>
 
-            {/* Right: Share / Export Menu */}
-            <div className="relative" ref={shareMenuRef}>
-                <button
-                    onClick={() => setShareOpen((prev) => !prev)}
+            {/* Right: Credits & Share / Export Menu */}
+            <div className="flex items-center gap-2">
+                {userData && (
+                    <div
+                        className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#181920] border border-white/[0.08] text-xs shadow-xs"
+                        title="Your available AI credits"
+                    >
+                        <HiOutlineBolt size={13} className="text-amber-400" />
+                        <span className="font-semibold text-white">
+                            {userData.credits ?? 100}
+                        </span>
+                        <span className="text-[10px] text-[#8e92a2] uppercase tracking-wider">
+                            credits
+                        </span>
+                    </div>
+                )}
+
+                <div className="relative" ref={shareMenuRef}>
+                    <button
+                        onClick={() => setShareOpen((prev) => !prev)}
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-border-subtle border border-transparent hover:border-border-subtle transition-all cursor-pointer"
                     aria-label="Share or export conversation"
                     aria-expanded={shareOpen}
@@ -331,6 +349,7 @@ const TopBar = () => {
                         </button>
                     </div>
                 )}
+                </div>
             </div>
         </header>
     );

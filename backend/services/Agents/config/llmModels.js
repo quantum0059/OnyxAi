@@ -23,6 +23,10 @@ export const getModel = async (agent) => {
             return groq;
         case "coding":
             return deepSeek;
+        case "pdf":
+            return groq;
+        case "ppt":
+            return groq;
         default:
             return groq;
     }

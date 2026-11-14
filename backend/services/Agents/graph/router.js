@@ -30,13 +30,13 @@ Your job is to analyze the user's input and classify it into exactly one of the 
    - Programming tasks, writing code, debugging, refactoring, algorithms, technical design, script creation, software engineering, or syntax troubleshooting.
 
 4. "pdf":
-   - Tasks involving PDF files, reading, summarizing, analyzing, extracting text from, or asking questions about PDF documents.
+   - Requests to generate, create, design, or write a PDF document or file (e.g., "generate a pdf", "create a pdf document", "make a pdf on topic X"). Also tasks reading, analyzing, or extracting text from PDF files.
 
 5. "ppt":
    - Requests related to creating, outlining, structuring, formatting, or designing PowerPoint presentations or slide decks.
 
 6. "vision":
-   - Requests involving images, photos, OCR, describing visual content, or answering questions about pictures.
+   - Requests to generate an image or picture (e.g. "generate an image", "create a picture of X"), or tasks analyzing, describing, performing OCR, or inspecting visual media. Do NOT select vision for PDF, document, or slide deck requests.
 
 Instructions:
 - Analyze the user prompt carefully, taking into account any recent conversation history for context on follow-up questions.

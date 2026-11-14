@@ -41,6 +41,7 @@ app.use(
 
 app.use("/api/chat", protect, proxyWithHeader(process.env.CHAT_SERVICE, "/api/chat"));
 app.use("/api/agent", protect, proxyWithHeader(process.env.AGENT_SERVICE, "/api/agent"));
+app.use("/api/payment", protect, proxyWithHeader(process.env.PAYMENT_SERVICE, "/api/payment"))
 
 app.get("/", (req, res) => {
     return res.json({ message: "Gateway is running" });

@@ -8,6 +8,7 @@ import {
     HiOutlineXMark,
     HiOutlineCodeBracket,
     HiOutlineDocumentText,
+    HiOutlineComputerDesktop,
     HiOutlinePhoto,
     HiOutlineEye,
     HiOutlineClipboard,
@@ -53,6 +54,9 @@ const getFileExtension = (name = '', fallback = 'txt') => {
 const ARTIFACT_ICONS = {
     code: HiOutlineCodeBracket,
     document: HiOutlineDocumentText,
+    pdf: HiOutlineDocumentText,
+    presentation: HiOutlineComputerDesktop,
+    ppt: HiOutlineComputerDesktop,
     image: HiOutlinePhoto,
     project: HiOutlineCodeBracket,
     fix: HiOutlineCodeBracket,
@@ -149,6 +153,23 @@ const Artifacts = ({ onResizeStart }) => {
     const iconKey = (currentArtifact?.type || 'code').toLowerCase();
     const Icon = ARTIFACT_ICONS[iconKey] ?? HiOutlineCodeBracket;
 
+    const isPdfArtifact =
+        currentArtifact?.type?.toLowerCase() === 'pdf' ||
+        activeFile?.name?.toLowerCase().endsWith('.pdf') ||
+        (typeof activeFile?.content === 'string' && activeFile.content.includes('.pdf') && activeFile.content.startsWith('http')) ||
+        (Boolean(currentArtifact?.url) && currentArtifact?.title?.toLowerCase().endsWith('.pdf'));
+
+    const isPptArtifact =
+        currentArtifact?.type?.toLowerCase() === 'presentation' ||
+        currentArtifact?.type?.toLowerCase() === 'ppt' ||
+        activeFile?.name?.toLowerCase().endsWith('.pptx') ||
+        activeFile?.name?.toLowerCase().endsWith('.ppt') ||
+        (Boolean(currentArtifact?.url) && (currentArtifact?.title?.toLowerCase().endsWith('.pptx') || currentArtifact?.title?.toLowerCase().endsWith('.ppt')));
+
+    const fileUrl = currentArtifact?.url || activeFile?.url || (typeof activeFile?.content === 'string' && activeFile.content.startsWith('http') ? activeFile.content.trim() : null);
+    const pdfUrl = isPdfArtifact ? fileUrl : null;
+    const pptUrl = isPptArtifact ? fileUrl : null;
+
     const handleCopy = async () => {
         if (!activeFile?.content) return;
         try {
@@ -160,8 +181,36 @@ const Artifacts = ({ onResizeStart }) => {
         }
     };
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
+        // If it's a binary document (PDF or PPTX), fetch the binary blob and trigger a direct file download
+        if ((isPdfArtifact && pdfUrl) || (isPptArtifact && pptUrl)) {
+            const targetUrl = pdfUrl || pptUrl;
+            const ext = isPdfArtifact ? 'pdf' : 'pptx';
+            try {
+                const response = await fetch(targetUrl);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                let downloadName = currentArtifact?.title || activeFile?.name || `presentation.${ext}`;
+                if (!downloadName.toLowerCase().endsWith(`.${ext}`)) {
+                    downloadName = `${downloadName}.${ext}`;
+                }
+                a.download = downloadName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+                return;
+            } catch (err) {
+                // Fallback to opening the presigned S3 link in a new tab
+                window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+        }
+
         if (!activeFile?.content) return;
+
         const filename = activeFile.name || `artifact.${activeExt}`;
         const blob = new Blob([activeFile.content], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -283,7 +332,35 @@ const Artifacts = ({ onResizeStart }) => {
 
             {/* Body: Preview vs Code */}
             {tab === 'preview' ? (
-                liveHtml ? (
+                isPdfArtifact && pdfUrl ? (
+                    <div className="flex-1 w-full h-full bg-[#18191f] overflow-hidden flex flex-col">
+                        <iframe
+                            src={`${pdfUrl}#toolbar=1&navpanes=0`}
+                            title={currentArtifact?.title || "PDF Viewer"}
+                            className="w-full flex-1 border-none bg-white"
+                        />
+                    </div>
+                ) : isPptArtifact && pptUrl ? (
+                    <div className="flex-1 w-full h-full bg-[#0d1117] flex flex-col items-center justify-center p-6 text-center select-none">
+                        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 shadow-lg animate-pulse">
+                            <HiOutlineComputerDesktop size={32} />
+                        </div>
+                        <h3 className="text-base font-semibold text-text-primary mb-1 max-w-sm truncate">
+                            {currentArtifact?.title || "Presentation Deck"}
+                        </h3>
+                        <p className="text-xs text-text-muted mb-5 max-w-xs leading-relaxed">
+                            PowerPoint presentation (.pptx) is ready. Click below or use the top download button to download and open it in PowerPoint or Google Slides.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleDownload}
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+                        >
+                            <HiOutlineArrowDownTray size={16} />
+                            <span>Download Presentation (.pptx)</span>
+                        </button>
+                    </div>
+                ) : liveHtml ? (
                     <div className="flex-1 overflow-hidden bg-white">
                         <iframe
                             srcDoc={liveHtml}
