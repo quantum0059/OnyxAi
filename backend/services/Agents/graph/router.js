@@ -2,9 +2,20 @@ import { getModel } from "../config/llmModels.js";
 import { getMemory } from "../config/memory.js";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 
-const VALID_AGENTS = ["chat", "search", "coding", "pdf", "ppt", "vision"];
+const VALID_AGENTS = ["chat", "search", "coding", "pdf", "ppt", "vision", "pdfRag", "imageAnalyzer"];
 
 export const router = async (state) => {
+    // 1. File-based routing: if a file is attached, route directly based on MIME type
+    const mimeType = state.file?.mimetype || state.file?.mimeType;
+    if (mimeType) {
+        if (mimeType === "application/pdf") {
+            return { agent: "pdfRag" };
+        }
+        if (mimeType.startsWith("image/")) {
+            return { agent: "imageAnalyzer" };
+        }
+    }
+
     // If an agent is already explicitly selected and not "auto", bypass LLM routing
     if (state.agent && state.agent !== "auto") {
         const targetAgent = String(state.agent).toLowerCase().trim();

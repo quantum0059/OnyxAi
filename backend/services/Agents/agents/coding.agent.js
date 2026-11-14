@@ -1,5 +1,6 @@
 import { getModel } from "../config/llmModels.js";
 import { getMemory } from "../config/memory.js";
+import { deductCredits } from "../utils/deductCredits.js";
 
 // ─────────────────────────────────────────────────────────────
 // Constants
@@ -386,7 +387,7 @@ export const codingAgent = async (state) => {
                 artifacts: []
             };
         }
-
+        const deductRes = await deductCredits(state.userId, "coding");
         return {
             ...state,
             aiResponse: result.summary,
@@ -395,7 +396,8 @@ export const codingAgent = async (state) => {
                 type: "Project",
                 title: result.title,
                 files: result.files
-            }]
+            }],
+            remainingCredits: deductRes?.credits
         };
     }
 
@@ -406,12 +408,13 @@ export const codingAgent = async (state) => {
 
     // Prose-only intents (e.g. explanation) keep everything in chat
     if (!cfg.defaultFile) {
-        return { ...state, aiResponse: text, artifacts: [] };
+        const deductRes = await deductCredits(state.userId, "coding");
+        return { ...state, aiResponse: text, artifacts: [], remainingCredits: deductRes?.credits };
     }
 
     const { chatText, files } = splitCodeFromResponse(text, cfg.defaultFile);
     const artifactTitle = files[0]?.name || cfg.artifactType || "Code";
-
+    const deductRes = await deductCredits(state.userId, "coding");
     return {
         ...state,
         aiResponse: chatText,
@@ -422,6 +425,7 @@ export const codingAgent = async (state) => {
                 title: artifactTitle,
                 files
             }]
-            : []
+            : [],
+        remainingCredits: deductRes?.credits
     };
 };

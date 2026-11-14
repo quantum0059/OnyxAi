@@ -19,6 +19,7 @@ export const login = async (req, res) => {
             })
         }
         const sessionId = crypto.randomUUID();
+        await redis.set(`user-session-${user._id}`, sessionId, "EX", 7 * 24 * 60 * 60);
         await redis.set(`session-${sessionId}`, JSON.stringify({
             userId: user._id,
             name: user.name,
@@ -110,36 +111,48 @@ export const deductCredits = async (req, res) => {
             pdf: 10,
             ppt: 10,
             vision: 10
-        }
+        };
 
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: "user not found" })
+            return res.status(404).json({ message: "User not found" });
         }
 
-        const deductionCost = COST[agent.toLowerCase()] || 1;
-        if (user.credits < requiredCredits) {
-            return res.status(400).json({ message: "Insufficient Credits" })
+        const agentName = String(agent || "chat").toLowerCase();
+        const deductionCost = COST[agentName] ?? 1;
+
+        if ((user.credits ?? 0) < deductionCost) {
+            return res.status(400).json({ message: "Insufficient Credits" });
         }
 
-        user.credits -= requiredCredits
-        await user.save()
+        user.credits -= deductionCost;
+        await user.save();
 
-        const sessionId = await redis.get(`user-session-${user?._id}`)
-        await redis.set(`session-${sessionId}`, JSON.stringify({
-            userId: user._id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatar,
-            plan: user.plan,
+        // Update all active sessions belonging to this user in Redis
+        try {
+            const keys = await redis.keys("session-*");
+            for (const key of keys) {
+                const sessionRaw = await redis.get(key);
+                if (sessionRaw) {
+                    const sessionData = JSON.parse(sessionRaw);
+                    if (String(sessionData.userId) === String(user._id)) {
+                        sessionData.credits = user.credits;
+                        sessionData.plan = user.plan;
+                        await redis.set(key, JSON.stringify(sessionData), "EX", 7 * 24 * 60 * 60);
+                    }
+                }
+            }
+        } catch (redisErr) {
+            console.error("Redis update error on deductCredits:", redisErr);
+        }
+
+        return res.status(200).json({
+            message: "Credits Deducted Successfully",
             credits: user.credits,
-            totalCredits: user.totalCredits,
-            planExpiredAt: user.planExpiredAt
-        }), "EX", 7 * 24 * 60 * 60);
-
-        return res.status(200).json({ message: "Credits Deducted Successfully", user });
-
+            deducted: deductionCost,
+            user
+        });
     } catch (error) {
-        return res.status(500).json({ message: `Deduct credits error ${error}` });
+        return res.status(500).json({ message: `Deduct credits error ${error.message || error}` });
     }
-}
+};

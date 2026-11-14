@@ -8,6 +8,7 @@ import {
     addConversation,
     updateConversationTitle,
 } from '../redux/conversationSlice';
+import { updateUserCredits } from '../redux/userSlice';
 
 /**
  * Encapsulates all chat send logic and connects with Redux conversation state.
@@ -76,6 +77,11 @@ const useChat = () => {
                 if (activeMode === 'auto' && response?.agent) {
                     const resolvedAgent = response.agent === 'vision' ? 'vision' : response.agent;
                     setActiveMode(resolvedAgent);
+                }
+
+                // If backend returned remaining credits, update Redux user store immediately
+                if (typeof response?.credits === 'number') {
+                    dispatch(updateUserCredits(response.credits));
                 }
 
                 const rawImages = response?.images || response?.data?.images || [];

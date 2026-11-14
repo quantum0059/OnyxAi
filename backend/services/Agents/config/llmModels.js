@@ -20,13 +20,15 @@ export const getModel = async (agent) => {
         case "chat":
             return groq;
         case "search":
-            return groq;
+            return gemini;
         case "coding":
             return deepSeek;
         case "pdf":
-            return groq;
+            return gemini;
         case "ppt":
             return groq;
+        case "imageAnalyzer":
+            return gemini;
         default:
             return groq;
     }

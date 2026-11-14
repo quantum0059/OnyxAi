@@ -3,6 +3,7 @@ import { getMemory } from "../config/memory.js";
 import { generatedPdf } from "../utils/generatePdf.js";
 import { uploadToS3 } from "../utils/uplodeToS3.js";
 import { getFromS3 } from "../utils/getFromS3.js";
+import { deductCredits } from "../utils/deductCredits.js";
 import crypto from "crypto";
 
 /**
@@ -110,9 +111,12 @@ ${userPrompt}`;
             `You can view the full document and download it directly from the artifact panel on the right.`
         ].filter(Boolean).join("\n\n");
 
+        const deductRes = await deductCredits(state.userId, "pdf");
+
         return {
             ...state,
             aiResponse: chatSummary,
+            remainingCredits: deductRes?.credits,
             artifacts: [
                 {
                     id: Date.now(),

@@ -3,6 +3,7 @@ import { getMemory } from "../config/memory.js";
 import { generatePpt } from "../utils/generatePpt.js";
 import { uploadToS3 } from "../utils/uplodeToS3.js";
 import { getFromS3 } from "../utils/getFromS3.js";
+import { deductCredits } from "../utils/deductCredits.js";
 import crypto from "crypto";
 
 /**
@@ -164,9 +165,12 @@ ${userPrompt}`;
             `\nYou can view and download the full **.pptx** file directly from the artifact panel on the right.`
         ].filter(Boolean).join("\n\n");
 
+        const deductRes = await deductCredits(state.userId, "ppt");
+
         return {
             ...state,
             aiResponse: chatSummary,
+            remainingCredits: deductRes?.credits,
             artifacts: [
                 {
                     id: Date.now(),

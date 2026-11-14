@@ -11,13 +11,18 @@ const userSlice = createSlice({
             state.userData = action.payload;
             state.loading = false;
         },
+        updateUserCredits(state, action) {
+            if (state.userData) {
+                state.userData.credits = action.payload;
+            }
+        },
         setLoading(state, action) {
             state.loading = action.payload;
         }
     }
 });
 
-export const { setUserData, setLoading } = userSlice.actions;
+export const { setUserData, updateUserCredits, setLoading } = userSlice.actions;
 export default userSlice.reducer;
 
 //here slices take data in from of the object

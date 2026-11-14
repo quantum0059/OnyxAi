@@ -1,11 +1,13 @@
 import { getModel } from "../config/llmModels.js";
 import { getMemory } from "../config/memory.js";
 import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { deductCredits } from "../utils/deductCredits.js";
 
 export const chatAgent = async (state) => {
     const llm = await getModel("chat");
 
     const history = await getMemory(state.conversationId, state.userId);
+
 
     let searchContext = "";
     if (state.searchResults) {
@@ -61,10 +63,15 @@ export const chatAgent = async (state) => {
         ? response.content
         : JSON.stringify(response?.content ?? "");
 
+    // If searchResults exist, this was routed through search -> deduct for search (5), otherwise chat (1)
+    const agentType = state.searchResults ? "search" : "chat";
+    const deductRes = await deductCredits(state.userId, agentType);
+
     return {
         ...state,
         aiResponse: aiContent,
-        images: Array.isArray(state?.images) ? state.images : []
+        images: Array.isArray(state?.images) ? state.images : [],
+        remainingCredits: deductRes?.credits
     };
 };
 

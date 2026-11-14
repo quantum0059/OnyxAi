@@ -3,6 +3,7 @@ import axios from "axios";
 import crypto from "crypto";
 import { uploadToS3 } from "../utils/uplodeToS3.js";
 import { getFromS3 } from "../utils/getFromS3.js";
+import { deductCredits } from "../utils/deductCredits.js";
 
 export const visionAgent = async (state) => {
     try {
@@ -43,10 +44,13 @@ export const visionAgent = async (state) => {
         // Generate signed URL valid for 24 hours
         const signedUrl = await getFromS3(filename, 86400);
 
+        const deductRes = await deductCredits(state.userId, "vision");
+
         return {
             ...state,
             aiResponse: `Here is the image generated based on your prompt:\n\n> *"${promptText}"*`,
-            images: [signedUrl]
+            images: [signedUrl],
+            remainingCredits: deductRes?.credits
         };
     } catch (error) {
         console.error("Error in visionAgent:", error);

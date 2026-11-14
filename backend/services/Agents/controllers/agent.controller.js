@@ -6,7 +6,7 @@ export const agent = async (req, res) => {
     try {
         const { prompt, conversationId, agent, images } = req.body;
         const userId = req.headers["x-user-id"];
-
+        const file = req.file;
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
@@ -38,7 +38,8 @@ export const agent = async (req, res) => {
             conversationId,
             userId,
             agent,
-            images: userImages
+            images: userImages,
+            file
         });
 
         const rawResponse = result?.aiResponse;
@@ -54,6 +55,7 @@ export const agent = async (req, res) => {
 
         const assistantImages = Array.isArray(result?.images) ? result.images : [];
         const assistantArtifacts = Array.isArray(result?.artifacts) ? result.artifacts : [];
+        const remainingCredits = typeof result?.remainingCredits === "number" ? result.remainingCredits : undefined;
 
         // 4. Persist assistant response (including Tavily images and artifacts) to DB and memory cache
         await axios.post(`${process.env.CHAT_SERVICE_URL}/save-message`, {
@@ -70,7 +72,8 @@ export const agent = async (req, res) => {
             response,
             agent: result?.agent,
             images: assistantImages,
-            artifacts: assistantArtifacts
+            artifacts: assistantArtifacts,
+            credits: remainingCredits
         });
     } catch (error) {
         console.error("Error in agent controller:", error);
