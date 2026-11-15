@@ -8,9 +8,25 @@ const app = express();
 app.use(express.json());
 const port = process.env.PORT;
 connectDB();
-app.use("/", router)
+
 app.get("/", (req, res) => {
     return res.json({ message: "Agents service is running" });
+});
+
+app.use("/", router)
+
+app.use((err, req, res, next) => {
+    console.error("Unhandled error:", err)
+
+    if (err.status) {
+        return res.status(err.status).json({
+            success: false,
+            message: err.message,
+            data: err.data
+        })
+    }
+
+    return res.status(500).json({ error: "Failed to process request" });
 })
 
 app.listen(port, () => {

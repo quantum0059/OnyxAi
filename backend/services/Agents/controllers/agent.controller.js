@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { graph } from '../graph/graph.js';
 import { addMessages } from '../config/memory.js';
+import { checkAgentLimit } from '../config/agentLimit.js';
 
-export const agent = async (req, res) => {
+export const agent = async (req, res, next) => {
     try {
-        const { prompt, conversationId, agent, images } = req.body;
+        const { prompt, conversationId, agent: selectedAgent, images } = req.body;
         const userId = req.headers["x-user-id"];
         const file = req.file;
         if (!userId) {
@@ -39,15 +40,19 @@ export const agent = async (req, res) => {
         // 2. Add user turn to memory cache (with automatic deduplication)
         await addMessages(conversationId, "user", cleanPrompt, userId, userImages);
 
-        // 3. Invoke agent graph
+        // 3. Invoke agent graph (router resolves actual agent inside)
         const result = await graph.invoke({
             prompt: cleanPrompt,
             conversationId,
             userId,
-            agent,
+            agent: selectedAgent,
             images: userImages,
             file
         });
+
+        // 4. Rate-limit on the ACTUAL resolved agent (after router runs)
+        const resolvedAgent = result?.agent || selectedAgent || "chat";
+        await checkAgentLimit(userId, resolvedAgent);
 
         const rawResponse = result?.aiResponse;
         const response = typeof rawResponse === "string"
@@ -64,7 +69,7 @@ export const agent = async (req, res) => {
         const assistantArtifacts = Array.isArray(result?.artifacts) ? result.artifacts : [];
         const remainingCredits = typeof result?.remainingCredits === "number" ? result.remainingCredits : undefined;
 
-        // 4. Persist assistant response (including Tavily images and artifacts) to DB and memory cache
+        // 5. Persist assistant response (including Tavily images and artifacts) to DB and memory cache
         await axios.post(`${process.env.CHAT_SERVICE_URL}/save-message`, {
             conversationId,
             role: "assistant",
@@ -83,7 +88,6 @@ export const agent = async (req, res) => {
             credits: remainingCredits
         });
     } catch (error) {
-        console.error("Error in agent controller:", error);
-        return res.status(500).json({ error: "Failed to process request" });
+        next(error)
     }
 };

@@ -15,6 +15,7 @@ import {
     HiOutlineDocumentText,
     HiOutlineComputerDesktop,
     HiOutlineArrowDownTray,
+    HiOutlineClock,
 } from 'react-icons/hi2';
 import { useChatContext } from '../contexts/ChatContext';
 
@@ -245,6 +246,7 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
     const { openArtifact } = useChatContext();
     const isUser = message.role === 'user';
     const isError = message.role === 'error';
+    const isRateLimit = message.role === 'rate-limit';
 
     // User Message: right-aligned, elevated surface, max-w ~75%
     if (isUser) {
@@ -301,6 +303,26 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                 <div className="max-w-[75%] px-4 py-3 rounded-xl bg-danger-subtle border border-danger-border text-danger text-sm leading-relaxed flex items-center gap-2.5 shadow-sm">
                     <HiOutlineExclamationTriangle size={18} className="shrink-0" />
                     <span>{message.content}</span>
+                </div>
+            </div>
+        );
+    }
+
+    // Rate-limit Message: amber warning with retry countdown
+    if (isRateLimit) {
+        return (
+            <div className="flex justify-start py-1.5">
+                <div className="max-w-[80%] px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm leading-relaxed shadow-sm">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                        <HiOutlineClock size={17} className="shrink-0 text-amber-400" />
+                        <span className="font-semibold text-amber-200">Rate limit reached</span>
+                    </div>
+                    <p className="text-[13px] text-amber-300/90 leading-relaxed">{message.content}</p>
+                    {message.retryAfter && (
+                        <p className="mt-1.5 text-[11px] text-amber-400/70 font-medium">
+                            ⏱ Retry in <span className="font-bold text-amber-300">{message.retryAfter}</span>
+                        </p>
+                    )}
                 </div>
             </div>
         );

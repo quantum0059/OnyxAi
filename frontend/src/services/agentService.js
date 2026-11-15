@@ -9,17 +9,28 @@ import api from '../../utils/axios';
  * @returns {Promise<string>} The AI's response text
  */
 export const sendMessage = async ({ prompt, conversationId, agent, file }) => {
-    if (file) {
-        const formData = new FormData();
-        formData.append('prompt', prompt || 'Analyze this file');
-        formData.append('conversationId', conversationId);
-        if (agent) formData.append('agent', agent);
-        formData.append('file', file);
+    try {
+        if (file) {
+            const formData = new FormData();
+            formData.append('prompt', prompt || 'Analyze this file');
+            formData.append('conversationId', conversationId);
+            if (agent) formData.append('agent', agent);
+            formData.append('file', file);
 
-        const { data } = await api.post('/api/agent/chat', formData);
+            const { data } = await api.post('/api/agent/chat', formData);
+            return data;
+        }
+
+        const { data } = await api.post('/api/agent/chat', { prompt, conversationId, agent });
         return data;
+    } catch (err) {
+        // Surface 429 rate-limit errors with their structured payload
+        if (err?.response?.status === 429) {
+            const rateLimitError = new Error('Rate limit exceeded');
+            rateLimitError.isRateLimit = true;
+            rateLimitError.data = err.response.data?.data || err.response.data || {};
+            throw rateLimitError;
+        }
+        throw err;
     }
-
-    const { data } = await api.post('/api/agent/chat', { prompt, conversationId, agent });
-    return data;
 };

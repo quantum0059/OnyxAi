@@ -142,12 +142,25 @@ const useChat = () => {
                     openArtifact(artifacts[0]);
                 }
             } catch (error) {
-                addMessage({
-                    id: crypto.randomUUID(),
-                    role: 'error',
-                    content: 'Something went wrong. Please try again.',
-                    timestamp: Date.now(),
-                });
+                if (error?.isRateLimit) {
+                    const { message, retryAfter, agent: limitedAgent, limit } = error.data || {};
+                    addMessage({
+                        id: crypto.randomUUID(),
+                        role: 'rate-limit',
+                        content: message || `You've hit the request limit. Please try again in ${retryAfter || 'a minute'}.`,
+                        retryAfter,
+                        limitedAgent,
+                        limit,
+                        timestamp: Date.now(),
+                    });
+                } else {
+                    addMessage({
+                        id: crypto.randomUUID(),
+                        role: 'error',
+                        content: 'Something went wrong. Please try again.',
+                        timestamp: Date.now(),
+                    });
+                }
                 console.error('Chat send error:', error);
             } finally {
                 setIsLoading(false);
