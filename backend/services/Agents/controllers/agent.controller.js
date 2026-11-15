@@ -11,22 +11,29 @@ export const agent = async (req, res) => {
             return res.status(401).json({ error: "Unauthorized" });
         }
 
-        if (typeof prompt !== "string" || !prompt.trim() || !conversationId) {
-            return res.status(400).json({ error: "A prompt and conversation ID are required" });
-        }
+        const cleanPrompt = (typeof prompt === "string" && prompt.trim())
+            ? prompt.trim()
+            : (file ? "Analyze the uploaded file" : "");
 
-        const cleanPrompt = prompt.trim();
+        if (!cleanPrompt || !conversationId) {
+            return res.status(400).json({ error: "A prompt or file, and conversation ID are required" });
+        }
         const userImages = Array.isArray(images) ? images : (images ? [images] : []);
         const chatServiceConfig = {
             headers: { "x-user-id": userId },
         };
 
-        // 1. Persist user turn (including any uploaded images) to Chat service database
+        // 1. Persist user turn (including any uploaded images and file attachment) to Chat service database
         await axios.post(`${process.env.CHAT_SERVICE_URL}/save-message`, {
             conversationId,
             role: "user",
             content: cleanPrompt,
-            images: userImages
+            images: userImages,
+            file: file ? {
+                name: file.originalname,
+                type: file.mimetype,
+                size: file.size
+            } : undefined
         }, chatServiceConfig);
 
         // 2. Add user turn to memory cache (with automatic deduplication)

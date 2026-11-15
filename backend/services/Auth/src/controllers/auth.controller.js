@@ -103,7 +103,7 @@ export const updateUserPayment = async (req, res) => {
 
 export const deductCredits = async (req, res) => {
     try {
-        const { userId, agent } = req.body;
+        const { userId, agent, amount } = req.body;
         const COST = {
             chat: 1,
             search: 5,
@@ -119,7 +119,9 @@ export const deductCredits = async (req, res) => {
         }
 
         const agentName = String(agent || "chat").toLowerCase();
-        const deductionCost = COST[agentName] ?? 1;
+        const deductionCost = (typeof amount === "number" && amount > 0)
+            ? amount
+            : (COST[agentName] ?? 1);
 
         if ((user.credits ?? 0) < deductionCost) {
             return res.status(400).json({ message: "Insufficient Credits" });

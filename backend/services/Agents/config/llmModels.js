@@ -29,6 +29,9 @@ export const getModel = async (agent) => {
             return groq;
         case "imageAnalyzer":
             return gemini;
+        case "pdf-rag":
+        case "pdfRag":
+            return gemini;
         default:
             return groq;
     }

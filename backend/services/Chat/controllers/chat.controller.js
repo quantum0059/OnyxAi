@@ -62,7 +62,7 @@ export const updateConversation = async (req, res) => {
 
 export const saveMessages = async (req, res) => {
     try {
-        const { conversationId, content, role, images, artifacts } = req.body;
+        const { conversationId, content, role, images, artifacts, file } = req.body;
         const userId = req.headers["x-user-id"];
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
@@ -82,6 +82,7 @@ export const saveMessages = async (req, res) => {
             content: content,
             role: role,
             images: normalizedImages,
+            file,
             artifacts
         });
         return res.status(200).json({ message: "Message saved successfully", message });

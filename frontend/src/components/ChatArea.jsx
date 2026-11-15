@@ -29,6 +29,8 @@ const TypingIndicator = () => (
 const WritingInbox = ({
     input,
     setInput,
+    selectedFile,
+    setSelectedFile,
     onSubmit,
     isLoading,
     activeMode,
@@ -37,6 +39,7 @@ const WritingInbox = ({
 }) => {
     const fileInputRef = useRef(null);
     const hasText = input.trim().length > 0;
+    const hasContent = hasText || !!selectedFile;
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -52,7 +55,8 @@ const WritingInbox = ({
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
-            setInput((prev) => (prev ? `${prev} [Attached: ${file.name}]` : `[Attached: ${file.name}] `));
+            setSelectedFile(file);
+            e.target.value = '';
         }
     };
 
@@ -91,6 +95,30 @@ const WritingInbox = ({
                 })}
             </div>
 
+            {/* Attached file chip if selected */}
+            {selectedFile && (
+                <div className="flex items-center gap-2 px-2.5 py-1 mb-1.5 mx-1 rounded-lg bg-white/[0.06] border border-white/10 w-fit text-xs text-text-secondary animate-fade-in">
+                    {selectedFile.type?.startsWith('image/') ? (
+                        <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt="preview"
+                            className="w-5 h-5 rounded object-cover"
+                        />
+                    ) : (
+                        <span className="font-semibold text-accent text-[11px]">PDF</span>
+                    )}
+                    <span className="max-w-[180px] sm:max-w-[260px] truncate text-white text-[12px]">{selectedFile.name}</span>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedFile(null)}
+                        className="ml-1 text-[#8e92a2] hover:text-white transition-colors cursor-pointer text-xs"
+                        title="Remove attachment"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             {/* Middle row: Textarea */}
             <div className="px-1 py-1">
                 <textarea
@@ -112,13 +140,14 @@ const WritingInbox = ({
                     <input
                         ref={fileInputRef}
                         type="file"
+                        accept="image/*,.pdf"
                         className="hidden"
                         onChange={handleFileChange}
                     />
                     <button
                         type="button"
                         onClick={handleFileClick}
-                        title="Attach file"
+                        title="Attach file (Images or PDF)"
                         aria-label="Attach file"
                         className="p-1.5 rounded-xl text-[#8e92a2] hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
                     >
@@ -137,14 +166,14 @@ const WritingInbox = ({
                 {/* Right tool: Send / Stop */}
                 <button
                     onClick={onSubmit}
-                    disabled={!hasText && !isLoading}
+                    disabled={!hasContent && !isLoading}
                     aria-label={isLoading ? 'Stop generating' : 'Send message'}
                     title={isLoading ? 'Stop generating' : 'Send message'}
                     className={`
                         w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer active:scale-95
                         ${isLoading
                             ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30'
-                            : hasText
+                            : hasContent
                             ? 'bg-[#6366f1] text-white shadow-md hover:bg-indigo-500'
                             : 'bg-[#22232a] text-[#555869] cursor-not-allowed opacity-70'
                         }
@@ -166,6 +195,7 @@ const ChatArea = () => {
     const { messages, isLoading, activeMode, setActiveMode } = useChatContext();
     const { handleSend } = useChat();
     const [input, setInput] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
     const [showScrollBottom, setShowScrollBottom] = useState(false);
 
     const scrollContainerRef = useRef(null);
@@ -198,9 +228,11 @@ const ChatArea = () => {
 
     const submit = () => {
         const trimmed = input.trim();
-        if (!trimmed || isLoading) return;
+        if ((!trimmed && !selectedFile) || isLoading) return;
+        const fileToSend = selectedFile;
         setInput('');
-        handleSend(trimmed);
+        setSelectedFile(null);
+        handleSend(trimmed, fileToSend);
     };
 
     const handleRegenerate = () => {
@@ -223,6 +255,8 @@ const ChatArea = () => {
                         <WritingInbox
                             input={input}
                             setInput={setInput}
+                            selectedFile={selectedFile}
+                            setSelectedFile={setSelectedFile}
                             onSubmit={submit}
                             isLoading={isLoading}
                             activeMode={activeMode}
@@ -272,6 +306,8 @@ const ChatArea = () => {
                             <WritingInbox
                                 input={input}
                                 setInput={setInput}
+                                selectedFile={selectedFile}
+                                setSelectedFile={setSelectedFile}
                                 onSubmit={submit}
                                 isLoading={isLoading}
                                 activeMode={activeMode}

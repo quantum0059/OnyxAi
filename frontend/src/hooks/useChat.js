@@ -31,9 +31,9 @@ const useChat = () => {
     } = useChatContext();
 
     const handleSend = useCallback(
-        async (prompt) => {
-            const trimmedPrompt = prompt.trim();
-            if (!trimmedPrompt || isLoading) return;
+        async (prompt, file = null) => {
+            const trimmedPrompt = (typeof prompt === 'string' ? prompt : '').trim();
+            if ((!trimmedPrompt && !file) || isLoading) return;
 
             // 1. Resolve or create active conversation ID in Redux
             let activeConvoId = currentConversationId;
@@ -50,11 +50,23 @@ const useChat = () => {
                 }
             }
 
-            // 2. Add user message to UI state
+            // 2. Add user message to UI state (with image preview or attached document)
+            const userImages = file && file.type?.startsWith('image/')
+                ? [URL.createObjectURL(file)]
+                : [];
+
+            const attachedFile = file ? {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+            } : null;
+
             const userMessage = {
                 id: crypto.randomUUID(),
                 role: 'user',
                 content: trimmedPrompt,
+                images: userImages,
+                file: attachedFile,
                 timestamp: Date.now(),
             };
             addMessage(userMessage);
@@ -63,9 +75,10 @@ const useChat = () => {
             // 3. Send message to AI backend via gateway
             try {
                 const response = await sendMessage({
-                    prompt: trimmedPrompt,
+                    prompt: trimmedPrompt || (file ? `Analyze the attached file: ${file.name}` : ''),
                     conversationId: activeConvoId,
                     agent: activeMode,
+                    file,
                 });
 
                 const content =
@@ -75,7 +88,12 @@ const useChat = () => {
 
                 // If currently in Auto mode, automatically shift UI active pill to the agent chosen by the router
                 if (activeMode === 'auto' && response?.agent) {
-                    const resolvedAgent = response.agent === 'vision' ? 'vision' : response.agent;
+                    const resolvedAgent =
+                        response.agent === 'imageAnalyzer' || response.agent === 'vision'
+                            ? 'vision'
+                            : response.agent === 'pdfRag'
+                            ? 'pdf'
+                            : response.agent;
                     setActiveMode(resolvedAgent);
                 }
 

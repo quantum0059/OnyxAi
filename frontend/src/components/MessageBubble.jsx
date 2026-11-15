@@ -251,6 +251,23 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
         return (
             <div className="flex justify-end py-1.5">
                 <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-elevated border border-border-muted text-text-primary text-[14.5px] leading-relaxed shadow-sm whitespace-pre-wrap break-words">
+                    {/* Render Document Box if PDF or file was attached */}
+                    {message.file && (
+                        <div className="flex items-center gap-3 p-2.5 mb-2 rounded-xl bg-black/25 border border-white/10 select-none">
+                            <div className="w-9 h-9 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold text-xs shrink-0 tracking-wider">
+                                PDF
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[13px] font-medium text-white truncate">
+                                    {message.file.name || 'Document.pdf'}
+                                </p>
+                                <p className="text-[11px] text-[#8e92a2]">
+                                    {message.file.size ? `${(message.file.size / 1024).toFixed(1)} KB • ` : ''}PDF Document
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {message.content}
                     {Array.isArray(message.images) && message.images.length > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">

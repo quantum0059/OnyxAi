@@ -1,6 +1,7 @@
 import { getModel } from "../config/llmModels.js";
 import { getMemory } from "../config/memory.js";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
+import redis from "../../../shared/redis.js";
 
 const VALID_AGENTS = ["chat", "search", "coding", "pdf", "ppt", "vision", "pdfRag", "imageAnalyzer"];
 
@@ -14,6 +15,16 @@ export const router = async (state) => {
         if (mimeType.startsWith("image/")) {
             return { agent: "imageAnalyzer" };
         }
+    }
+
+    // 2. If user is in an active PDF RAG conversation, route follow-up messages to pdfRag
+    if (state.conversationId) {
+        try {
+            const hasPdfCol = await redis.get(`pdf_col:${state.conversationId}`);
+            if (hasPdfCol && (!state.agent || state.agent === "auto" || state.agent === "pdf" || state.agent === "pdfrag")) {
+                return { agent: "pdfRag" };
+            }
+        } catch {}
     }
 
     // If an agent is already explicitly selected and not "auto", bypass LLM routing

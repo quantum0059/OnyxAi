@@ -25,6 +25,11 @@ const messageSchema = new mongoose.Schema({
 
     content: String,
     images: [String],
+    file: {
+        name: String,
+        type: { type: String },
+        size: Number
+    },
     artifacts: [artifactSchema]
 
 }, { timestamps: true })
