@@ -1,7 +1,11 @@
 import axios from 'axios';
+import fs from 'fs';
+import crypto from 'crypto';
 import { graph } from '../graph/graph.js';
 import { addMessages } from '../config/memory.js';
 import { checkAgentLimit } from '../config/agentLimit.js';
+import { uploadToS3 } from '../utils/uplodeToS3.js';
+import { getFromS3 } from '../utils/getFromS3.js';
 
 export const agent = async (req, res, next) => {
     try {
@@ -19,10 +23,28 @@ export const agent = async (req, res, next) => {
         if (!cleanPrompt || !conversationId) {
             return res.status(400).json({ error: "A prompt or file, and conversation ID are required" });
         }
-        const userImages = Array.isArray(images) ? images : (images ? [images] : []);
+        const userImages = Array.isArray(images) ? [...images] : (images ? [images] : []);
         const chatServiceConfig = {
             headers: { "x-user-id": userId },
         };
+
+        // If user attached a file (image or document), persist a copy to S3 for permanent access in chat history
+        let uploadedFileUrl = undefined;
+        if (file && file.path) {
+            try {
+                const fileBuffer = await fs.promises.readFile(file.path);
+                const safeName = (file.originalname || "file").replace(/[^a-zA-Z0-9.-]/g, "_");
+                const s3Key = `uploads/${Date.now()}-${crypto.randomBytes(4).toString("hex")}-${safeName}`;
+                await uploadToS3(s3Key, fileBuffer, file.mimetype || "application/octet-stream");
+                uploadedFileUrl = await getFromS3(s3Key, 604800); // 7 days (SigV4 max)
+
+                if (file.mimetype?.startsWith("image/")) {
+                    userImages.push(uploadedFileUrl);
+                }
+            } catch (uploadErr) {
+                console.error("Failed to upload file to S3:", uploadErr);
+            }
+        }
 
         // 1. Persist user turn (including any uploaded images and file attachment) to Chat service database
         await axios.post(`${process.env.CHAT_SERVICE_URL}/save-message`, {
@@ -33,7 +55,8 @@ export const agent = async (req, res, next) => {
             file: file ? {
                 name: file.originalname,
                 type: file.mimetype,
-                size: file.size
+                size: file.size,
+                url: uploadedFileUrl
             } : undefined
         }, chatServiceConfig);
 

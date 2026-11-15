@@ -41,8 +41,8 @@ export const visionAgent = async (state) => {
         const filename = `vision-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.jpg`;
         await uploadToS3(filename, Buffer.from(imageRes.data), "image/jpeg");
 
-        // Generate signed URL valid for 24 hours
-        const signedUrl = await getFromS3(filename, 86400);
+        // Generate signed URL valid for 7 days (AWS SigV4 maximum)
+        const signedUrl = await getFromS3(filename, 604800);
 
         const deductRes = await deductCredits(state.userId, "vision");
 

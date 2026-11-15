@@ -405,6 +405,7 @@ const SideBar = () => {
                 id: m._id || m.id || crypto.randomUUID(),
                 role: m.role || 'user',
                 content: m.content || '',
+                file: m.file || null,
                 images: Array.isArray(m.images) ? m.images : [],
                 artifacts: Array.isArray(m.artifacts) ? m.artifacts : [],
                 timestamp: m.createdAt ? new Date(m.createdAt).getTime() : Date.now(),

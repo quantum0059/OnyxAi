@@ -28,7 +28,8 @@ const messageSchema = new mongoose.Schema({
     file: {
         name: String,
         type: { type: String },
-        size: Number
+        size: Number,
+        url: String
     },
     artifacts: [artifactSchema]
 
