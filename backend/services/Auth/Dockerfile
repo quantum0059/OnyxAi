@@ -5,12 +5,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-COPY ./service/Auth/package*.json ./service/Auth/
-RUN cd ./service/Auth && npm install
+COPY ./services/Auth/package*.json ./services/Auth/
+RUN cd ./services/Auth && npm install
 
-COPY service/Auth ./service/Auth
+COPY services/Auth ./services/Auth
 COPY shared ./shared
 
-WORKDIR /app/service/Auth
+WORKDIR /app/services/Auth
 EXPOSE 8001
 CMD ["npm","start" ]
