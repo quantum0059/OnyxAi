@@ -9,6 +9,7 @@ import {
 } from 'react-icons/hi2';
 import { useChatContext } from '../contexts/ChatContext';
 import useChat from '../hooks/useChat';
+import useSpeechToText from '../hooks/useSpeechToText';
 import MessageBubble from './MessageBubble';
 import { AGENT_MODES } from '../config/agentModes';
 
@@ -36,6 +37,11 @@ const WritingInbox = ({
     activeMode,
     setActiveMode,
     textareaRef,
+    isListening,
+    toggleListening,
+    isSpeechSupported,
+    speechError,
+    clearSpeechError,
 }) => {
     const fileInputRef = useRef(null);
     const hasText = input.trim().length > 0;
@@ -95,6 +101,21 @@ const WritingInbox = ({
                 })}
             </div>
 
+            {/* Speech error notice */}
+            {speechError && (
+                <div className="flex items-center justify-between gap-2 px-3 py-1.5 mb-2 mx-1 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs animate-fade-in">
+                    <span className="truncate">{speechError}</span>
+                    <button
+                        type="button"
+                        onClick={clearSpeechError}
+                        className="text-rose-400 hover:text-white transition-colors cursor-pointer text-xs font-bold px-1"
+                        title="Dismiss"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             {/* Attached file chip if selected */}
             {selectedFile && (
                 <div className="flex items-center gap-2 px-2.5 py-1 mb-1.5 mx-1 rounded-lg bg-white/[0.06] border border-white/10 w-fit text-xs text-text-secondary animate-fade-in">
@@ -126,7 +147,7 @@ const WritingInbox = ({
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask Anything…"
+                    placeholder={isListening ? 'Listening… Speak now' : 'Ask Anything…'}
                     rows={1}
                     className="w-full bg-transparent resize-none text-[14px] sm:text-[15px] text-white placeholder:text-[#65697b] outline-none leading-relaxed max-h-[180px] overflow-y-auto py-1"
                     aria-label="Chat input"
@@ -155,11 +176,27 @@ const WritingInbox = ({
                     </button>
                     <button
                         type="button"
-                        title="Voice input (Microphone)"
-                        aria-label="Voice input"
-                        className="p-1.5 rounded-xl text-[#8e92a2] hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                        onClick={toggleListening}
+                        title={
+                            !isSpeechSupported
+                                ? 'Speech recognition is not supported in this browser'
+                                : isListening
+                                ? 'Listening… Click to stop'
+                                : 'Voice input (Microphone)'
+                        }
+                        aria-label={isListening ? 'Stop voice input' : 'Voice input'}
+                        className={`p-1.5 rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                            isListening
+                                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.35)] animate-pulse'
+                                : 'text-[#8e92a2] hover:text-white hover:bg-white/[0.06]'
+                        }`}
                     >
-                        <HiOutlineMicrophone size={18} />
+                        <HiOutlineMicrophone size={18} className={isListening ? 'text-rose-400 animate-bounce' : ''} />
+                        {isListening && (
+                            <span className="text-[11px] font-medium text-rose-400 pr-1 animate-pulse">
+                                Listening…
+                            </span>
+                        )}
                     </button>
                 </div>
 
@@ -201,6 +238,22 @@ const ChatArea = () => {
     const scrollContainerRef = useRef(null);
     const bottomRef = useRef(null);
     const textareaRef = useRef(null);
+    const inputRef = useRef(input);
+    inputRef.current = input;
+
+    const {
+        isListening,
+        isSupported: isSpeechSupported,
+        error: speechError,
+        toggleListening,
+        stopListening,
+        clearError: clearSpeechError,
+    } = useSpeechToText({
+        onTranscript: (spokenText) => {
+            setInput(spokenText);
+        },
+        getCurrentText: () => inputRef.current,
+    });
 
     const hasMessages = messages.length > 0;
 
@@ -227,6 +280,9 @@ const ChatArea = () => {
     }, [input]);
 
     const submit = () => {
+        if (isListening) {
+            stopListening();
+        }
         const trimmed = input.trim();
         if ((!trimmed && !selectedFile) || isLoading) return;
         const fileToSend = selectedFile;
@@ -262,6 +318,11 @@ const ChatArea = () => {
                             activeMode={activeMode}
                             setActiveMode={setActiveMode}
                             textareaRef={textareaRef}
+                            isListening={isListening}
+                            toggleListening={toggleListening}
+                            isSpeechSupported={isSpeechSupported}
+                            speechError={speechError}
+                            clearSpeechError={clearSpeechError}
                         />
                         <p className="text-[11px] text-text-muted text-center mt-2.5">
                             OnyxAI can make mistakes. Verify important information.
@@ -313,6 +374,11 @@ const ChatArea = () => {
                                 activeMode={activeMode}
                                 setActiveMode={setActiveMode}
                                 textareaRef={textareaRef}
+                                isListening={isListening}
+                                toggleListening={toggleListening}
+                                isSpeechSupported={isSpeechSupported}
+                                speechError={speechError}
+                                clearSpeechError={clearSpeechError}
                             />
                             <p className="text-[11px] text-text-muted text-center mt-2">
                                 OnyxAI can make mistakes. Verify important information.
