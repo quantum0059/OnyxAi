@@ -15,8 +15,6 @@ node_modules
 **/.env.test
 
 # ─── Private Keys, Credentials & Certificates ───
-serviceAccountKey.json
-**/serviceAccountKey.json
 *.pem
 **/*.pem
 *.key
