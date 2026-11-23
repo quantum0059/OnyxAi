@@ -16,13 +16,10 @@ import { AGENT_MODES } from '../config/agentModes';
 
 /* ─── Typing indicator ─────────────────────────────────────── */
 const TypingIndicator = () => (
-    <div className="flex items-start gap-3 py-3 w-full animate-fade-up">
-        <div className="w-7 h-7 rounded-lg bg-accent-subtle border border-accent-border flex items-center justify-center text-accent-hover shrink-0 mt-0.5 shadow-sm animate-pulse">
-            <HiOutlineSparkles size={15} />
-        </div>
-        <div className="flex items-center gap-2 py-1.5">
-            <div className="h-3.5 w-24 rounded-full bg-gradient-to-r from-accent/25 via-accent/60 to-accent/25 animate-pulse-shimmer" />
-            <span className="text-xs text-text-muted font-medium animate-pulse">OnyxAI is thinking…</span>
+    <div className="flex flex-col py-1.5 w-full animate-fade-up max-w-[740px]">
+        <div className="flex items-center gap-2 py-1">
+            <div className="h-2.5 w-16 rounded-full bg-white/[0.08] animate-pulse" />
+            <span className="text-xs text-[#737373] font-medium animate-pulse">Thinking…</span>
         </div>
     </div>
 );

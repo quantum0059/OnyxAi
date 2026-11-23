@@ -108,13 +108,13 @@ const MessageActions = ({ content, onRegenerate, onLike, onDislike, messageId })
     };
 
     return (
-        <div className="flex items-center gap-1 mt-2 text-text-muted opacity-80 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1.5 mt-2.5 text-[#737373]">
             <button
                 type="button"
                 onClick={handleCopyAll}
                 title={copied ? 'Copied' : 'Copy message'}
                 aria-label="Copy message"
-                className="p-1.5 rounded-md hover:bg-border-subtle hover:text-text-primary transition-colors cursor-pointer text-xs flex items-center gap-1"
+                className="p-1 rounded-md hover:bg-white/[0.06] hover:text-[#D4D4D8] transition-colors cursor-pointer text-xs flex items-center gap-1"
             >
                 {copied ? <HiOutlineCheck size={14} className="text-success" /> : <HiOutlineClipboard size={14} />}
                 {copied && <span className="text-[11px] text-success font-medium">Copied</span>}
@@ -126,7 +126,7 @@ const MessageActions = ({ content, onRegenerate, onLike, onDislike, messageId })
                     onClick={() => onRegenerate(messageId)}
                     title="Regenerate response"
                     aria-label="Regenerate response"
-                    className="p-1.5 rounded-md hover:bg-border-subtle hover:text-text-primary transition-colors cursor-pointer"
+                    className="p-1 rounded-md hover:bg-white/[0.06] hover:text-[#D4D4D8] transition-colors cursor-pointer"
                 >
                     <HiOutlineArrowPath size={14} />
                 </button>
@@ -137,8 +137,8 @@ const MessageActions = ({ content, onRegenerate, onLike, onDislike, messageId })
                 onClick={handleLike}
                 title="Good response"
                 aria-label="Good response"
-                className={`p-1.5 rounded-md hover:bg-border-subtle transition-colors cursor-pointer ${
-                    feedback === 'like' ? 'text-accent bg-accent-subtle' : 'hover:text-text-primary'
+                className={`p-1 rounded-md hover:bg-white/[0.06] transition-colors cursor-pointer ${
+                    feedback === 'like' ? 'text-white bg-white/[0.08]' : 'hover:text-[#D4D4D8]'
                 }`}
             >
                 <HiOutlineHandThumbUp size={14} />
@@ -149,8 +149,8 @@ const MessageActions = ({ content, onRegenerate, onLike, onDislike, messageId })
                 onClick={handleDislike}
                 title="Bad response"
                 aria-label="Bad response"
-                className={`p-1.5 rounded-md hover:bg-border-subtle transition-colors cursor-pointer ${
-                    feedback === 'dislike' ? 'text-danger bg-danger-subtle' : 'hover:text-text-primary'
+                className={`p-1 rounded-md hover:bg-white/[0.06] transition-colors cursor-pointer ${
+                    feedback === 'dislike' ? 'text-rose-400 bg-rose-500/10' : 'hover:text-[#D4D4D8]'
                 }`}
             >
                 <HiOutlineHandThumbDown size={14} />
@@ -176,7 +176,7 @@ const MARKDOWN_COMPONENTS = {
         }
         return (
             <code
-                className="bg-border-muted text-accent-hover px-1.5 py-0.5 rounded text-[13px] font-mono"
+                className="bg-white/[0.08] text-[#ECECEC] px-1.5 py-0.5 rounded text-[13.5px] font-mono border border-white/[0.05]"
                 {...props}
             >
                 {children}
@@ -184,36 +184,36 @@ const MARKDOWN_COMPONENTS = {
         );
     },
     h1({ children }) {
-        return <h1 className="text-xl font-bold text-text-primary mt-4 mb-2 tracking-tight">{children}</h1>;
+        return <h1 className="text-xl font-semibold text-[#F5F5F5] mt-6 mb-3 tracking-tight">{children}</h1>;
     },
     h2({ children }) {
-        return <h2 className="text-lg font-semibold text-text-primary mt-3 mb-1.5 tracking-tight">{children}</h2>;
+        return <h2 className="text-lg font-semibold text-[#F5F5F5] mt-5 mb-2.5 tracking-tight">{children}</h2>;
     },
     h3({ children }) {
-        return <h3 className="text-base font-semibold text-text-primary mt-2.5 mb-1">{children}</h3>;
+        return <h3 className="text-base font-semibold text-[#F5F5F5] mt-4 mb-2">{children}</h3>;
     },
     p({ children }) {
-        return <p className="text-[14.5px] leading-relaxed text-text-primary mb-3 last:mb-0">{children}</p>;
+        return <p className="text-[15px] leading-[1.65] text-[#ECECEC] mb-3.5 last:mb-0">{children}</p>;
     },
     ul({ children }) {
-        return <ul className="list-disc list-outside pl-5 mb-3 space-y-1 text-[14.5px] text-text-primary">{children}</ul>;
+        return <ul className="list-disc list-outside pl-5 mb-3.5 space-y-1.5 text-[15px] text-[#ECECEC] leading-[1.65]">{children}</ul>;
     },
     ol({ children }) {
-        return <ol className="list-decimal list-outside pl-5 mb-3 space-y-1 text-[14.5px] text-text-primary">{children}</ol>;
+        return <ol className="list-decimal list-outside pl-5 mb-3.5 space-y-1.5 text-[15px] text-[#ECECEC] leading-[1.65]">{children}</ol>;
     },
     li({ children }) {
-        return <li className="leading-relaxed text-text-primary">{children}</li>;
+        return <li className="leading-[1.65] text-[#ECECEC] pl-1">{children}</li>;
     },
     blockquote({ children }) {
         return (
-            <blockquote className="border-l-2 border-accent pl-3 my-2 text-text-secondary italic">
+            <blockquote className="border-l-2 border-white/20 pl-3.5 my-3.5 text-[#A1A1AA] italic">
                 {children}
             </blockquote>
         );
     },
     table({ children }) {
         return (
-            <div className="my-3 w-full overflow-x-auto rounded-lg border border-border-muted">
+            <div className="my-4 w-full overflow-x-auto rounded-lg border border-border-muted">
                 <table className="w-full border-collapse text-left text-xs">{children}</table>
             </div>
         );
@@ -222,7 +222,7 @@ const MARKDOWN_COMPONENTS = {
         return <th className="bg-elevated px-3 py-2 border-b border-border-muted font-medium text-text-primary">{children}</th>;
     },
     td({ children }) {
-        return <td className="px-3 py-2 border-b border-border-subtle text-text-secondary">{children}</td>;
+        return <td className="px-3 py-2 border-b border-border-subtle text-[#A1A1AA]">{children}</td>;
     },
     a({ href, children }) {
         return (
@@ -230,14 +230,14 @@ const MARKDOWN_COMPONENTS = {
                 href={href}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-accent hover:text-accent-hover underline underline-offset-2 transition-colors"
+                className="text-white hover:underline underline-offset-2 transition-colors font-medium"
             >
                 {children}
             </a>
         );
     },
     hr() {
-        return <hr className="my-4 border-border-subtle" />;
+        return <hr className="my-5 border-border-subtle" />;
     },
 };
 
@@ -248,11 +248,11 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
     const isError = message.role === 'error';
     const isRateLimit = message.role === 'rate-limit';
 
-    // User Message: right-aligned, elevated surface, max-w ~75%
+    // User Message: right-aligned, midnight-blue bubble (#243B60), clean white text, auto width
     if (isUser) {
         return (
-            <div className="flex justify-end py-1.5">
-                <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-elevated border border-border-muted text-text-primary text-[14.5px] leading-relaxed shadow-sm whitespace-pre-wrap break-words">
+            <div className="flex justify-end py-2">
+                <div className="max-w-[85%] sm:max-w-[75%] px-4 py-2.5 rounded-[18px] bg-[#243B60] text-white text-[14.5px] leading-relaxed shadow-sm whitespace-pre-wrap break-words">
                     {/* Render Document Box if PDF or file was attached */}
                     {message.file && (
                         <div className="flex items-center gap-3 p-2.5 mb-2 rounded-xl bg-black/25 border border-white/10 select-none">
@@ -263,7 +263,7 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                                 <p className="text-[13px] font-medium text-white truncate">
                                     {message.file.name || 'Document.pdf'}
                                 </p>
-                                <p className="text-[11px] text-[#737373]">
+                                <p className="text-[11px] text-white/70">
                                     {message.file.size ? `${(message.file.size / 1024).toFixed(1)} KB • ` : ''}PDF Document
                                 </p>
                             </div>
@@ -279,7 +279,7 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                                     href={imgUrl}
                                     target="_blank"
                                     rel="noreferrer noopener"
-                                    className="group relative rounded-xl overflow-hidden border border-border-muted bg-[#1A1A1A] aspect-video block"
+                                    className="group relative rounded-xl overflow-hidden border border-white/10 bg-[#1A1A1A] aspect-video block"
                                 >
                                     <img
                                         src={imgUrl}
@@ -328,17 +328,12 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
         );
     }
 
-    // AI Message: left-aligned with small avatar, no heavy bubble, max-w ~720px
+    // AI Message: left-aligned, natural background (unboxed), clean typography like ChatGPT
     return (
-        <div className="group flex items-start gap-3 py-3 w-full">
-            {/* Small AI Avatar */}
-            <div className="w-7 h-7 rounded-lg bg-accent-subtle border border-accent-border flex items-center justify-center text-accent-hover shrink-0 mt-0.5 shadow-sm">
-                <HiOutlineSparkles size={15} />
-            </div>
-
-            {/* Content area */}
-            <div className="flex-1 min-w-0 max-w-[720px]">
-                <div className="text-text-primary text-[14.5px] leading-relaxed break-words">
+        <div className="group flex flex-col py-1.5 w-full">
+            {/* Content area: left-aligned, unboxed, natural background */}
+            <div className="w-full max-w-[740px]">
+                <div className="text-[#ECECEC] text-[15px] leading-[1.65] break-words font-normal">
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeHighlight]}
