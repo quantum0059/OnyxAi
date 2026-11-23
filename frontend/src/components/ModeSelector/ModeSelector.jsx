@@ -37,8 +37,8 @@ export const ModeSelector = ({ className = '', compact = false }) => {
                             group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium
                             transition-all duration-200 cursor-pointer shrink-0 border
                             ${isActive
-                                ? `${theme.bg} ${theme.activeBorder} ${theme.text} shadow-sm scale-[1.02]`
-                                : 'bg-elevated/70 border-border-muted text-text-secondary hover:text-text-primary hover:border-border-strong hover:bg-elevated'
+                                ? `${theme.bg} ${theme.border} ${theme.text} shadow-xs scale-[1.02]`
+                                : 'bg-[#18191E] border-white/[0.06] text-[#8E929E] hover:text-[#D1D5DB] hover:border-white/[0.12] hover:bg-[#202127]'
                             }
                         `}
                     >

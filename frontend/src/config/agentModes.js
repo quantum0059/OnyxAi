@@ -30,13 +30,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlineBolt,
         theme: {
-            text: 'text-indigo-400',
-            bg: 'bg-indigo-500/10',
-            hoverBg: 'hover:bg-indigo-500/15',
-            border: 'border-indigo-500/30',
-            activeBorder: 'border-indigo-500/60',
-            glow: 'rgba(99, 102, 241, 0.22)',
-            dot: 'bg-indigo-500',
+            text: 'text-[#E8D8B0]',
+            bg: 'bg-[#24211A]',
+            border: 'border-[#4B402D]',
+            hoverBg: 'hover:bg-[#2B271F]',
+            activeBorder: 'border-[#5A4E38]',
+            dot: 'bg-[#CBB279]',
         },
         suggestions: [
             {
@@ -62,13 +61,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlineChatBubbleLeftRight,
         theme: {
-            text: 'text-indigo-400',
-            bg: 'bg-indigo-500/10',
-            hoverBg: 'hover:bg-indigo-500/15',
-            border: 'border-indigo-500/30',
-            activeBorder: 'border-indigo-500/60',
-            glow: 'rgba(99, 102, 241, 0.22)',
-            dot: 'bg-indigo-500',
+            text: 'text-[#B5D1C1]',
+            bg: 'bg-[#18231E]',
+            border: 'border-[#2C4035]',
+            hoverBg: 'hover:bg-[#1E2C26]',
+            activeBorder: 'border-[#375244]',
+            dot: 'bg-[#8DAA99]',
         },
         suggestions: [
             {
@@ -94,13 +92,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlineCodeBracket,
         theme: {
-            text: 'text-indigo-400',
-            bg: 'bg-indigo-500/10',
-            hoverBg: 'hover:bg-indigo-500/15',
-            border: 'border-indigo-500/30',
-            activeBorder: 'border-indigo-500/60',
-            glow: 'rgba(99, 102, 241, 0.22)',
-            dot: 'bg-indigo-500',
+            text: 'text-[#B8CEE0]',
+            bg: 'bg-[#182128]',
+            border: 'border-[#293B4A]',
+            hoverBg: 'hover:bg-[#1E2A34]',
+            activeBorder: 'border-[#364D60]',
+            dot: 'bg-[#80A0BC]',
         },
         suggestions: [
             {
@@ -126,13 +123,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlineDocumentText,
         theme: {
-            text: 'text-rose-400',
-            bg: 'bg-rose-500/10',
-            hoverBg: 'hover:bg-rose-500/15',
-            border: 'border-rose-500/30',
-            activeBorder: 'border-rose-500/60',
-            glow: 'rgba(244, 63, 94, 0.22)',
-            dot: 'bg-rose-500',
+            text: 'text-[#DEC0C5]',
+            bg: 'bg-[#261A1D]',
+            border: 'border-[#482D33]',
+            hoverBg: 'hover:bg-[#302125]',
+            activeBorder: 'border-[#5B3941]',
+            dot: 'bg-[#BD848C]',
         },
         suggestions: [
             {
@@ -158,13 +154,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlineComputerDesktop,
         theme: {
-            text: 'text-amber-400',
-            bg: 'bg-amber-500/10',
-            hoverBg: 'hover:bg-amber-500/15',
-            border: 'border-amber-500/30',
-            activeBorder: 'border-amber-500/60',
-            glow: 'rgba(245, 158, 11, 0.22)',
-            dot: 'bg-amber-500',
+            text: 'text-[#E4CAA9]',
+            bg: 'bg-[#261F18]',
+            border: 'border-[#483827]',
+            hoverBg: 'hover:bg-[#30271E]',
+            activeBorder: 'border-[#5B4732]',
+            dot: 'bg-[#CDA37B]',
         },
         suggestions: [
             {
@@ -190,13 +185,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlinePhoto,
         theme: {
-            text: 'text-purple-400',
-            bg: 'bg-purple-500/10',
-            hoverBg: 'hover:bg-purple-500/15',
-            border: 'border-purple-500/30',
-            activeBorder: 'border-purple-500/60',
-            glow: 'rgba(168, 85, 247, 0.22)',
-            dot: 'bg-purple-500',
+            text: 'text-[#D5C7DB]',
+            bg: 'bg-[#221B26]',
+            border: 'border-[#3E2F48]',
+            hoverBg: 'hover:bg-[#2B2230]',
+            activeBorder: 'border-[#4F3C5C]',
+            dot: 'bg-[#A992AF]',
         },
         suggestions: [
             {
@@ -222,13 +216,12 @@ export const AGENT_MODES = [
         placeholder: 'Ask Anything…',
         icon: HiOutlineGlobeAlt,
         theme: {
-            text: 'text-sky-400',
-            bg: 'bg-sky-500/10',
-            hoverBg: 'hover:bg-sky-500/15',
-            border: 'border-sky-500/30',
-            activeBorder: 'border-sky-500/60',
-            glow: 'rgba(14, 165, 233, 0.22)',
-            dot: 'bg-sky-500',
+            text: 'text-[#A7D4D7]',
+            bg: 'bg-[#162325]',
+            border: 'border-[#254044]',
+            hoverBg: 'hover:bg-[#1C2C2F]',
+            activeBorder: 'border-[#305257]',
+            dot: 'bg-[#66A3A8]',
         },
         suggestions: [
             {

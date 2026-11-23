@@ -287,14 +287,14 @@ const TopBar = () => {
             <div className="flex items-center gap-2">
                 {userData && (
                     <div
-                        className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#181920] border border-white/[0.08] text-xs shadow-xs"
+                        className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1F1F1F] border border-white/[0.08] text-xs shadow-xs"
                         title="Your available AI credits"
                     >
                         <HiOutlineBolt size={13} className="text-amber-400" />
                         <span className="font-semibold text-white">
                             {userData.credits ?? 100}
                         </span>
-                        <span className="text-[10px] text-[#8e92a2] uppercase tracking-wider">
+                        <span className="text-[10px] text-[#737373] uppercase tracking-wider">
                             credits
                         </span>
                     </div>

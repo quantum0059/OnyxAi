@@ -11,6 +11,7 @@ import { useChatContext } from '../contexts/ChatContext';
 import useChat from '../hooks/useChat';
 import useSpeechToText from '../hooks/useSpeechToText';
 import MessageBubble from './MessageBubble';
+import VoiceRecorder from './VoiceRecorder';
 import { AGENT_MODES } from '../config/agentModes';
 
 /* ─── Typing indicator ─────────────────────────────────────── */
@@ -39,6 +40,9 @@ const WritingInbox = ({
     textareaRef,
     isListening,
     toggleListening,
+    stopListening,
+    cancelListening,
+    transcript,
     isSpeechSupported,
     speechError,
     clearSpeechError,
@@ -67,7 +71,7 @@ const WritingInbox = ({
     };
 
     return (
-        <div className="w-full bg-[#18191f] border border-white/[0.08] hover:border-white/[0.14] focus-within:border-white/[0.2] rounded-2xl sm:rounded-3xl p-3 shadow-2xl transition-all duration-200">
+        <div className="w-full bg-[#212121] border border-white/[0.07] hover:border-white/[0.11] focus-within:border-white/[0.16] rounded-2xl sm:rounded-3xl p-3 shadow-xl transition-all duration-200">
             {/* Top row: Capsule mode pills */}
             <div
                 className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-2 px-0.5 select-none"
@@ -77,6 +81,7 @@ const WritingInbox = ({
                 {AGENT_MODES.map((mode) => {
                     const isActive = mode.id === activeMode;
                     const Icon = mode.icon;
+                    const { theme } = mode;
                     return (
                         <button
                             key={mode.id}
@@ -86,11 +91,11 @@ const WritingInbox = ({
                             title={mode.description}
                             onClick={() => setActiveMode(mode.id)}
                             className={`
-                                flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
+                                flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border
                                 transition-all duration-150 cursor-pointer shrink-0 whitespace-nowrap
                                 ${isActive
-                                    ? 'bg-[#6366f1] text-white shadow-sm'
-                                    : 'bg-[#22232a] text-[#8e92a2] hover:text-white hover:bg-[#2b2c36]'
+                                    ? `${theme.bg} ${theme.border} ${theme.text} shadow-xs`
+                                    : 'bg-[#18191E] text-[#8E929E] border-white/[0.06] hover:bg-[#202127] hover:text-[#D1D5DB] hover:border-white/[0.12]'
                                 }
                             `}
                         >
@@ -132,7 +137,7 @@ const WritingInbox = ({
                     <button
                         type="button"
                         onClick={() => setSelectedFile(null)}
-                        className="ml-1 text-[#8e92a2] hover:text-white transition-colors cursor-pointer text-xs"
+                        className="ml-1 text-[#737373] hover:text-white transition-colors cursor-pointer text-xs"
                         title="Remove attachment"
                     >
                         ✕
@@ -140,24 +145,33 @@ const WritingInbox = ({
                 </div>
             )}
 
-            {/* Middle row: Textarea */}
+            {/* Middle row: Waveform OR Textarea */}
+            {isListening ? (
+                <VoiceRecorder
+                    isListening={isListening}
+                    transcript={transcript}
+                    onStop={stopListening}
+                    onCancel={cancelListening}
+                />
+            ) : (
             <div className="px-1 py-1">
                 <textarea
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={isListening ? 'Listening… Speak now' : 'Ask Anything…'}
+                    placeholder="Ask Anything…"
                     rows={1}
-                    className="w-full bg-transparent resize-none text-[14px] sm:text-[15px] text-white placeholder:text-[#65697b] outline-none leading-relaxed max-h-[180px] overflow-y-auto py-1"
+                    className="w-full bg-transparent resize-none text-[14px] sm:text-[15px] text-[#F5F5F5] placeholder:text-[#525252] outline-none leading-relaxed max-h-[180px] overflow-y-auto py-1"
                     aria-label="Chat input"
                 />
             </div>
+            )}
 
             {/* Bottom row: Action controls */}
             <div className="flex items-center justify-between pt-1 px-1">
                 {/* Left tools: Attach & Mic */}
-                <div className="flex items-center gap-1 text-[#8e92a2]">
+                <div className="flex items-center gap-1 text-[#737373]">
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -170,7 +184,7 @@ const WritingInbox = ({
                         onClick={handleFileClick}
                         title="Attach file (Images or PDF)"
                         aria-label="Attach file"
-                        className="p-1.5 rounded-xl text-[#8e92a2] hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl text-[#737373] hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
                     >
                         <HiOutlinePaperClip size={18} />
                     </button>
@@ -188,7 +202,7 @@ const WritingInbox = ({
                         className={`p-1.5 rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                             isListening
                                 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.35)] animate-pulse'
-                                : 'text-[#8e92a2] hover:text-white hover:bg-white/[0.06]'
+                                : 'text-[#737373] hover:text-white hover:bg-white/[0.05]'
                         }`}
                     >
                         <HiOutlineMicrophone size={18} className={isListening ? 'text-rose-400 animate-bounce' : ''} />
@@ -211,8 +225,8 @@ const WritingInbox = ({
                         ${isLoading
                             ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30'
                             : hasContent
-                            ? 'bg-[#6366f1] text-white shadow-md hover:bg-indigo-500'
-                            : 'bg-[#22232a] text-[#555869] cursor-not-allowed opacity-70'
+                            ? 'bg-[#F5F5F5] text-[#0D0D0D] shadow-sm hover:bg-white'
+                            : 'bg-[#1F1F1F] text-[#525252] cursor-not-allowed opacity-70'
                         }
                     `}
                 >
@@ -243,10 +257,12 @@ const ChatArea = () => {
 
     const {
         isListening,
+        transcript,
         isSupported: isSpeechSupported,
         error: speechError,
         toggleListening,
         stopListening,
+        cancelListening,
         clearError: clearSpeechError,
     } = useSpeechToText({
         onTranscript: (spokenText) => {
@@ -320,6 +336,9 @@ const ChatArea = () => {
                             textareaRef={textareaRef}
                             isListening={isListening}
                             toggleListening={toggleListening}
+                            stopListening={stopListening}
+                            cancelListening={cancelListening}
+                            transcript={transcript}
                             isSpeechSupported={isSpeechSupported}
                             speechError={speechError}
                             clearSpeechError={clearSpeechError}
@@ -376,6 +395,9 @@ const ChatArea = () => {
                                 textareaRef={textareaRef}
                                 isListening={isListening}
                                 toggleListening={toggleListening}
+                                stopListening={stopListening}
+                                cancelListening={cancelListening}
+                                transcript={transcript}
                                 isSpeechSupported={isSpeechSupported}
                                 speechError={speechError}
                                 clearSpeechError={clearSpeechError}

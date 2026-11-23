@@ -83,10 +83,10 @@ export const ModeDropdown = ({ className = '' }) => {
                                         setIsOpen(false);
                                     }}
                                     className={`
-                                        w-full text-left p-2 rounded-lg flex items-start gap-2.5 transition-colors cursor-pointer
+                                        w-full text-left p-2 rounded-lg flex items-start gap-2.5 transition-colors cursor-pointer border
                                         ${isSelected
-                                            ? `${modeTheme.bg} ${modeTheme.text}`
-                                            : 'hover:bg-border-subtle text-text-secondary hover:text-text-primary'
+                                            ? `${modeTheme.bg} ${modeTheme.border} ${modeTheme.text}`
+                                            : 'border-transparent hover:bg-white/[0.04] text-text-secondary hover:text-text-primary'
                                         }
                                     `}
                                 >

@@ -320,7 +320,7 @@ const Artifacts = ({ onResizeStart }) => {
                             onClick={() => setActiveFileIndex(idx)}
                             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono transition-colors cursor-pointer whitespace-nowrap ${
                                 activeFileIndex === idx
-                                    ? 'bg-[#1f242c] text-accent-hover font-semibold border border-border-muted shadow-sm'
+                                    ? 'bg-[#262626] text-accent-hover font-semibold border border-border-muted shadow-sm'
                                     : 'text-text-muted hover:text-text-secondary hover:bg-white/[0.04]'
                             }`}
                         >
@@ -333,7 +333,7 @@ const Artifacts = ({ onResizeStart }) => {
             {/* Body: Preview vs Code */}
             {tab === 'preview' ? (
                 isPdfArtifact && pdfUrl ? (
-                    <div className="flex-1 w-full h-full bg-[#18191f] overflow-hidden flex flex-col">
+                    <div className="flex-1 w-full h-full bg-[#171717] overflow-hidden flex flex-col">
                         <iframe
                             src={`${pdfUrl}#toolbar=1&navpanes=0`}
                             title={currentArtifact?.title || "PDF Viewer"}

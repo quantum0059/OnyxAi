@@ -75,12 +75,12 @@ const UserAvatar = ({ userData, size = 'sm' }) => {
             <img
                 src={userData.avatar}
                 alt={userData.name ?? 'User avatar'}
-                className={`${dim} rounded-full ring-1 ring-accent/40 shrink-0 object-cover`}
+                className={`${dim} rounded-full ring-1 ring-white/10 shrink-0 object-cover`}
             />
         );
     }
     return (
-        <div className={`${dim} rounded-full bg-accent flex items-center justify-center font-semibold text-white shrink-0`}>
+        <div className={`${dim} rounded-full bg-[#262626] border border-white/10 flex items-center justify-center font-medium text-text-primary shrink-0`}>
             {userData?.name?.[0]?.toUpperCase() ?? 'U'}
         </div>
     );
@@ -299,10 +299,10 @@ const UserDropdown = ({ userData, onLogout, onOpenUpgrade, onClose }) => {
                 className="w-full flex items-center justify-between px-3 py-2 text-[13px] text-text-primary hover:bg-border-subtle transition-colors cursor-pointer group/up"
             >
                 <div className="flex items-center gap-2.5">
-                    <HiOutlineSparkles size={15} className="text-indigo-400" />
+                    <HiOutlineSparkles size={15} className="text-text-primary" />
                     <span>Upgrade plan</span>
                 </div>
-                <span className="text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-semibold bg-white/[0.08] text-[#A1A1AA] border border-white/[0.1] px-2 py-0.5 rounded-full">
                     Pro
                 </span>
             </button>
@@ -534,7 +534,7 @@ const SideBar = () => {
                     <button
                         onClick={handleNewChat}
                         aria-label="Start a new chat"
-                        className="btn-send-active w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[13px] font-medium text-white shadow-md hover:opacity-90 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+                        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[13px] font-medium bg-[#212121] hover:bg-[#2A2A2A] text-text-primary border border-white/[0.08] hover:border-white/[0.14] transition-all duration-150 cursor-pointer active:scale-[0.98]"
                     >
                         <HiOutlinePencilSquare size={15} />
                         New chat
@@ -619,7 +619,7 @@ const SideBar = () => {
                                         {userData.name}
                                     </p>
                                     <div className="flex items-center gap-1.5 mt-0.5">
-                                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/25">
+                                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded bg-white/[0.08] text-[#A1A1AA] border border-white/[0.1]">
                                             {userData.plan || 'Free'}
                                         </span>
                                         <span className="text-[11px] text-text-muted truncate">
@@ -638,7 +638,7 @@ const SideBar = () => {
                                 onClick={() => setUpgradeModalOpen(true)}
                                 aria-label="Upgrade plan"
                                 title="Upgrade plan"
-                                className="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-[#22232a] hover:bg-indigo-600 hover:text-white text-[#c6c9d8] border border-white/[0.08] transition-all duration-150 cursor-pointer shrink-0"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-[#1F1F1F] hover:bg-[#2A2A2A] hover:text-white text-[#A1A1AA] border border-white/[0.08] transition-all duration-150 cursor-pointer shrink-0"
                             >
                                 Upgrade
                             </button>

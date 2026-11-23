@@ -263,7 +263,7 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                                 <p className="text-[13px] font-medium text-white truncate">
                                     {message.file.name || 'Document.pdf'}
                                 </p>
-                                <p className="text-[11px] text-[#8e92a2]">
+                                <p className="text-[11px] text-[#737373]">
                                     {message.file.size ? `${(message.file.size / 1024).toFixed(1)} KB • ` : ''}PDF Document
                                 </p>
                             </div>
@@ -279,7 +279,7 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                                     href={imgUrl}
                                     target="_blank"
                                     rel="noreferrer noopener"
-                                    className="group relative rounded-xl overflow-hidden border border-border-muted bg-[#121318] aspect-video block"
+                                    className="group relative rounded-xl overflow-hidden border border-border-muted bg-[#1A1A1A] aspect-video block"
                                 >
                                     <img
                                         src={imgUrl}
@@ -363,7 +363,7 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                                         href={imgUrl}
                                         target="_blank"
                                         rel="noreferrer noopener"
-                                        className="group relative rounded-xl overflow-hidden border border-border-muted bg-[#121318] aspect-video block shadow-sm hover:border-accent-border transition-all"
+                                        className="group relative rounded-xl overflow-hidden border border-border-muted bg-[#1A1A1A] aspect-video block shadow-sm hover:border-border-strong transition-all"
                                     >
                                         <img
                                             src={imgUrl}
@@ -393,14 +393,14 @@ const MessageBubble = ({ message, onRegenerate, onLike, onDislike }) => {
                                     ? 'bg-amber-500/10 text-amber-400'
                                     : isPdf
                                     ? 'bg-rose-500/10 text-rose-400'
-                                    : 'bg-indigo-500/10 text-indigo-400';
+                                    : 'bg-white/[0.08] text-[#F5F5F5]';
 
                                 return (
                                     <button
                                         key={art.id || idx}
                                         type="button"
                                         onClick={() => openArtifact(art)}
-                                        className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl border border-border-muted bg-[#12141a] hover:bg-[#1a1d26] hover:border-accent-border transition-all text-xs font-medium text-text-primary cursor-pointer shadow-sm group/btn max-w-sm"
+                                        className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl border border-border-muted bg-[#1E1E1E] hover:bg-[#282828] hover:border-border-strong transition-all text-xs font-medium text-text-primary cursor-pointer shadow-sm group/btn max-w-sm"
                                     >
                                         <div className="flex items-center gap-2.5 truncate">
                                             <div className={`p-1.5 rounded-lg ${badgeColor}`}>

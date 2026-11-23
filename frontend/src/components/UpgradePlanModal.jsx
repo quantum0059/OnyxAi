@@ -200,7 +200,7 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
             />
 
             {/* Modal Dialog */}
-            <div className="relative w-full max-w-5xl bg-[#14151a] border border-white/[0.08] rounded-3xl shadow-2xl p-6 sm:p-8 z-10 my-auto text-white overflow-hidden animate-fade-up">
+            <div className="relative w-full max-w-5xl bg-[#1A1A1A] border border-white/[0.08] rounded-3xl shadow-2xl p-6 sm:p-8 z-10 my-auto text-white overflow-hidden animate-fade-up">
                 {/* Close Button */}
                 <button
                     onClick={onClose}
@@ -220,14 +220,14 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                     </p>
 
                     {/* Personal vs Business toggle */}
-                    <div className="inline-flex items-center p-1 mt-4 rounded-full bg-[#1e2029] border border-white/[0.06]">
+                    <div className="inline-flex items-center p-1 mt-4 rounded-full bg-[#262626] border border-white/[0.07]">
                         <button
                             type="button"
                             onClick={() => setBillingTab('personal')}
                             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                                 billingTab === 'personal'
-                                    ? 'bg-[#2b2d3a] text-white shadow-sm'
-                                    : 'text-[#8e92a2] hover:text-white'
+                                    ? 'bg-[#2A2A2A] text-white shadow-sm'
+                                    : 'text-[#A1A1AA] hover:text-white'
                             }`}
                         >
                             Personal
@@ -237,8 +237,8 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                             onClick={() => setBillingTab('business')}
                             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                                 billingTab === 'business'
-                                    ? 'bg-[#2b2d3a] text-white shadow-sm'
-                                    : 'text-[#8e92a2] hover:text-white'
+                                    ? 'bg-[#2A2A2A] text-white shadow-sm'
+                                    : 'text-[#A1A1AA] hover:text-white'
                             }`}
                         >
                             Business
@@ -253,7 +253,7 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                             statusMessage.type === 'success'
                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                                 : statusMessage.type === 'info'
-                                ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                                ? 'bg-white/[0.06] text-[#A1A1AA] border border-white/[0.1]'
                                 : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                         }`}
                     >
@@ -274,15 +274,15 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                                 className={`
                                     relative flex flex-col justify-between rounded-2xl p-6 transition-all duration-200
                                     ${plan.popular
-                                        ? 'bg-[#181a24] border-2 border-indigo-500/60 shadow-xl shadow-indigo-500/10'
-                                        : 'bg-[#18191f] border border-white/[0.08] hover:border-white/[0.16]'
+                                        ? 'bg-[#1F1F1F] border-2 border-white/[0.18] shadow-xl'
+                                        : 'bg-[#171717] border border-white/[0.08] hover:border-white/[0.14]'
                                     }
                                 `}
                             >
                                 {/* Top Badge if Popular */}
                                 {plan.popular && (
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                        <span className="flex items-center gap-1 px-3 py-0.5 rounded-full bg-indigo-500 text-white text-[11px] font-semibold tracking-wide uppercase shadow-sm">
+                                        <span className="flex items-center gap-1 px-3 py-0.5 rounded-full bg-white text-[#0D0D0D] text-[11px] font-semibold tracking-wide uppercase shadow-sm">
                                             <HiOutlineSparkles size={11} />
                                             {plan.badge}
                                         </span>
@@ -295,7 +295,7 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                                         <h3 className="text-xl font-bold text-white tracking-tight">
                                             {plan.name}
                                         </h3>
-                                        <span className="text-[11px] font-medium text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+                                        <span className="text-[11px] font-medium text-[#A1A1AA] bg-white/[0.07] px-2.5 py-0.5 rounded-full border border-white/[0.1]">
                                             {plan.credits} Credits
                                         </span>
                                     </div>
@@ -322,7 +322,7 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                                     <ul className="space-y-3 mb-6">
                                         {plan.features.map((feat, idx) => (
                                             <li key={idx} className="flex items-start gap-2.5 text-xs text-[#c6c9d8] leading-relaxed">
-                                                <div className="mt-0.5 rounded-full p-0.5 bg-indigo-500/15 text-indigo-400 shrink-0">
+                                                <div className="mt-0.5 rounded-full p-0.5 bg-white/[0.1] text-[#A1A1AA] shrink-0">
                                                     <HiOutlineCheck size={12} />
                                                 </div>
                                                 <span>{feat}</span>
@@ -340,12 +340,12 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
                                         className={`
                                             w-full py-2.5 px-4 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5
                                             ${isCurrent
-                                                ? 'bg-[#22232a] text-[#8e92a2] cursor-not-allowed border border-white/[0.05]'
+                                                ? 'bg-[#1F1F1F] text-[#737373] cursor-not-allowed border border-white/[0.05]'
                                                 : isProcessing
-                                                ? 'bg-indigo-600/70 text-white cursor-wait'
+                                                ? 'bg-[#2A2A2A] text-[#A1A1AA] cursor-wait'
                                                 : plan.popular
-                                                ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 active:scale-[0.98]'
-                                                : 'bg-white text-black hover:bg-gray-100 active:scale-[0.98]'
+                                                ? 'bg-white text-[#0D0D0D] hover:bg-[#E5E5E5] shadow-lg active:scale-[0.98]'
+                                                : 'bg-[#2A2A2A] text-white hover:bg-[#333333] active:scale-[0.98]'
                                             }
                                         `}
                                     >
