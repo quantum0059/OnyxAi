@@ -33,6 +33,7 @@ import { getConversations } from '../features/getConversation';
 import { getConversationMessages } from '../features/getConversationMessages';
 import { updateConversation } from '../features/updateConversation';
 import { useChatContext } from '../contexts/ChatContext';
+import { DEFAULT_MODE_ID } from '../config/agentModes';
 import api from '../../utils/axios';
 import UpgradePlanModal from './UpgradePlanModal';
 
@@ -330,7 +331,7 @@ const UserDropdown = ({ userData, onLogout, onOpenUpgrade, onClose }) => {
    SideBar Component
    ───────────────────────────────────────────── */
 const SideBar = () => {
-    const { sidebarOpen, toggleSidebar, setMessages } = useChatContext();
+    const { sidebarOpen, toggleSidebar, setMessages, setActiveMode } = useChatContext();
     const { userData } = useSelector((state) => state.user);
     const { conversations, currentConversationId, loading: historyLoading } = useSelector(
         (state) => state.conversations
@@ -387,6 +388,7 @@ const SideBar = () => {
             dispatch(addConversation(localFallback));
         }
         setMessages([]);
+        setActiveMode?.(DEFAULT_MODE_ID);
         setQuery('');
         if (window.innerWidth < 768 && sidebarOpen) {
             toggleSidebar();

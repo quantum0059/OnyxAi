@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useChatContext } from '../contexts/ChatContext';
 import { sendMessage } from '../services/agentService';
@@ -27,8 +27,10 @@ const useChat = () => {
         isLoading,
         openArtifact,
         activeMode,
-        setActiveMode,
     } = useChatContext();
+
+    const activeModeRef = useRef(activeMode);
+    activeModeRef.current = activeMode;
 
     const handleSend = useCallback(
         async (prompt, file = null) => {
@@ -77,7 +79,7 @@ const useChat = () => {
                 const response = await sendMessage({
                     prompt: trimmedPrompt || (file ? `Analyze the attached file: ${file.name}` : ''),
                     conversationId: activeConvoId,
-                    agent: activeMode,
+                    agent: activeModeRef.current || 'auto',
                     file,
                 });
 
@@ -85,17 +87,6 @@ const useChat = () => {
                     typeof response === 'string'
                         ? response
                         : response?.answer ?? response?.response ?? response?.text ?? response?.content ?? JSON.stringify(response);
-
-                // If currently in Auto mode, automatically shift UI active pill to the agent chosen by the router
-                if (activeMode === 'auto' && response?.agent) {
-                    const resolvedAgent =
-                        response.agent === 'imageAnalyzer' || response.agent === 'vision'
-                            ? 'vision'
-                            : response.agent === 'pdfRag'
-                            ? 'pdf'
-                            : response.agent;
-                    setActiveMode(resolvedAgent);
-                }
 
                 // If backend returned remaining credits, update Redux user store immediately
                 if (typeof response?.credits === 'number') {
@@ -114,6 +105,7 @@ const useChat = () => {
                     content,
                     images,
                     artifacts,
+                    agent: response?.agent,
                     timestamp: Date.now(),
                 };
                 addMessage(aiMessage);
@@ -175,6 +167,7 @@ const useChat = () => {
             setIsLoading,
             openArtifact,
             dispatch,
+            activeMode,
         ]
     );
 

@@ -5,6 +5,35 @@ import redis from "../../../shared/redis.js";
 
 const VALID_AGENTS = ["chat", "search", "coding", "pdf", "ppt", "vision", "pdfRag", "imageAnalyzer"];
 
+const AGENT_ALIASES = {
+    image: "vision",
+    images: "vision",
+    vision: "vision",
+    draw: "vision",
+    code: "coding",
+    coding: "coding",
+    programmer: "coding",
+    developer: "coding",
+    search: "search",
+    web: "search",
+    chat: "chat",
+    conversation: "chat",
+    pdf: "pdf",
+    pdfrag: "pdfRag",
+    "pdf-rag": "pdfRag",
+    ppt: "ppt",
+    presentation: "ppt",
+    slides: "ppt",
+    imageanalyzer: "imageAnalyzer",
+    "image-analyzer": "imageAnalyzer",
+};
+
+const normalizeAgent = (raw) => {
+    if (!raw || typeof raw !== "string") return null;
+    const clean = raw.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
+    return AGENT_ALIASES[clean] || (VALID_AGENTS.includes(clean) ? clean : null);
+};
+
 export const router = async (state) => {
     // 1. File-based routing: if a file is attached, route directly based on MIME type
     const mimeType = state.file?.mimetype || state.file?.mimeType;
@@ -17,21 +46,16 @@ export const router = async (state) => {
         }
     }
 
-    // 2. If user is in an active PDF RAG conversation, route follow-up messages to pdfRag
-    if (state.conversationId) {
-        try {
-            const hasPdfCol = await redis.get(`pdf_col:${state.conversationId}`);
-            if (hasPdfCol && (!state.agent || state.agent === "auto" || state.agent === "pdf" || state.agent === "pdfrag")) {
-                return { agent: "pdfRag" };
-            }
-        } catch {}
-    }
-
-    // If an agent is already explicitly selected and not "auto", bypass LLM routing
+    // 2. Explicit manual agent selection (when not "auto", bypass LLM routing)
     if (state.agent && state.agent !== "auto") {
-        const targetAgent = String(state.agent).toLowerCase().trim();
-        const normalized = targetAgent === "image" ? "vision" : targetAgent;
-        if (VALID_AGENTS.includes(normalized)) {
+        const normalized = normalizeAgent(state.agent);
+        if (normalized === "pdf" || normalized === "pdfRag") {
+            try {
+                const hasPdfCol = await redis.get(`pdf_col:${state.conversationId}`);
+                if (hasPdfCol) return { agent: "pdfRag" };
+            } catch {}
+        }
+        if (normalized && VALID_AGENTS.includes(normalized)) {
             return { agent: normalized };
         }
     }
@@ -43,7 +67,7 @@ export const router = async (state) => {
 Your job is to analyze the user's input and classify it into exactly one of the following agent categories:
 
 1. "chat":
-   - General conversation, greetings, casual talk, explanations, brainstorming, creative writing, or general knowledge that does not require live web search or coding.
+   - General conversation, greetings, casual talk, explanations, brainstorming, creative writing, summarizing conversation history, or general knowledge that does not require live web search or coding.
 
 2. "search":
    - Queries requiring real-time information, breaking news, recent events, weather, stock prices, or questions that require an up-to-date web search.
@@ -52,16 +76,18 @@ Your job is to analyze the user's input and classify it into exactly one of the 
    - Programming tasks, writing code, debugging, refactoring, algorithms, technical design, script creation, software engineering, or syntax troubleshooting.
 
 4. "pdf":
-   - Requests to generate, create, design, or write a PDF document or file (e.g., "generate a pdf", "create a pdf document", "make a pdf on topic X"). Also tasks reading, analyzing, or extracting text from PDF files.
+   - Requests to generate, create, design, or write a PDF document or file (e.g., "generate a pdf", "create a pdf document", "make a pdf on topic X"). Also tasks reading, analyzing, asking questions about, or extracting text from PDF files or documents.
 
 5. "ppt":
    - Requests related to creating, outlining, structuring, formatting, or designing PowerPoint presentations or slide decks.
 
 6. "vision":
-   - Requests to generate an image or picture (e.g. "generate an image", "create a picture of X"), or tasks analyzing, describing, performing OCR, or inspecting visual media. Do NOT select vision for PDF, document, or slide deck requests.
+   - Requests to generate, draw, or create an image or picture (e.g. "generate an image", "create a picture of X", "draw a cat"), or tasks analyzing, describing, performing OCR, or inspecting visual media. Do NOT select vision for PDF, document, or slide deck requests.
 
 Instructions:
-- Analyze the user prompt carefully, taking into account any recent conversation history for context on follow-up questions.
+- Base your routing decision primarily on the user's LATEST request ("Current user request").
+- When the user changes tasks or asks for a new operation (e.g. switching from chat to coding, or from coding to image generation), route to the agent suited for that new task regardless of previous conversation topics.
+- Only use recent conversation context to disambiguate follow-ups (e.g., "explain it", "convert this to python", "make another one", "summarize our chat").
 - Return ONLY a valid JSON object in this exact format:
 {"agent": "<chosen_agent>"}
 - The value of "agent" MUST be one of: "chat", "search", "coding", "pdf", "ppt", "vision".
@@ -95,7 +121,6 @@ Instructions:
         new HumanMessage(promptWithContext),
     ]);
 
-
     let selectedAgent = "chat";
 
     try {
@@ -109,17 +134,43 @@ Instructions:
             .replace(/```/g, "")
             .trim();
 
-        const parsed = JSON.parse(cleaned);
+        let parsed = null;
+        try {
+            parsed = JSON.parse(cleaned);
+        } catch {
+            const jsonMatch = cleaned.match(/\{[\s\S]*?"agent"[\s\S]*?\}/);
+            if (jsonMatch) {
+                try { parsed = JSON.parse(jsonMatch[0]); } catch {}
+            }
+        }
 
-        if (parsed.agent && VALID_AGENTS.includes(parsed.agent.toLowerCase())) {
-            selectedAgent = parsed.agent.toLowerCase();
+        if (parsed && parsed.agent) {
+            const normalized = normalizeAgent(parsed.agent);
+            if (normalized) {
+                selectedAgent = normalized;
+            }
+        } else {
+            const match = cleaned.match(/"agent"\s*:\s*"([a-zA-Z_-]+)"/i);
+            if (match && match[1]) {
+                const normalized = normalizeAgent(match[1]);
+                if (normalized) {
+                    selectedAgent = normalized;
+                }
+            }
         }
     } catch {
-        // Fallback: check if any valid agent name was mentioned directly in the response
-        const rawText = String(response.content || "").toLowerCase();
-        const matched = VALID_AGENTS.find((agent) => rawText.includes(agent));
-        if (matched) {
-            selectedAgent = matched;
+        selectedAgent = "chat";
+    }
+
+    // If router chose pdf and conversation has active vector collection, route to pdfRag
+    if (selectedAgent === "pdf" || selectedAgent === "pdfRag") {
+        if (state.conversationId) {
+            try {
+                const hasPdfCol = await redis.get(`pdf_col:${state.conversationId}`);
+                if (hasPdfCol) {
+                    selectedAgent = "pdfRag";
+                }
+            } catch {}
         }
     }
 
