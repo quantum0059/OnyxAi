@@ -129,9 +129,14 @@ p {
     border-radius: 4px;
 }
 
-/* Remove focus ring for mouse users */
-:focus:not(:focus-visible) {
-    outline: none;
+/* Remove focus ring for mouse users, textareas, and text inputs */
+:focus:not(:focus-visible),
+textarea:focus,
+textarea:focus-visible,
+input[type="text"]:focus,
+input[type="text"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* ─────────────────────────────────────────────

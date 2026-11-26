@@ -159,7 +159,7 @@ const WritingInbox = ({
                     onKeyDown={handleKeyDown}
                     placeholder="Ask Anything…"
                     rows={1}
-                    className="w-full bg-transparent resize-none text-[14px] sm:text-[15px] text-[#F5F5F5] placeholder:text-[#525252] outline-none leading-relaxed max-h-[180px] overflow-y-auto py-1"
+                    className="w-full bg-transparent resize-none text-[14px] sm:text-[15px] text-[#F5F5F5] placeholder:text-[#525252] outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 border-none shadow-none leading-relaxed max-h-[180px] overflow-y-auto py-1"
                     aria-label="Chat input"
                 />
             </div>
