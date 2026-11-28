@@ -19,11 +19,17 @@ for (const variableName of ["AUTH_SERVICE", "CHAT_SERVICE", "AGENT_SERVICE"]) {
 }
 
 const app = express();
+app.set("trust proxy", 1);
 const port = process.env.PORT || 8000;
+
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 // Enable CORS for frontend
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
 }));
 

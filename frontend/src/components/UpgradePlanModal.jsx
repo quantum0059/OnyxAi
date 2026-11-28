@@ -95,6 +95,11 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
         setStatusMessage(null);
 
         try {
+            const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+            if (!razorpayKeyId) {
+                throw new Error('Razorpay key is not configured. Please set VITE_RAZORPAY_KEY_ID.');
+            }
+
             // 1. Ensure Razorpay SDK is ready
             const isLoaded = await loadRazorpayScript();
             if (!isLoaded) {
@@ -111,7 +116,7 @@ const UpgradePlanModal = ({ isOpen, onClose }) => {
 
             // 3. Configure Razorpay Checkout options
             const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_Tzy1sbpReSBW0k',
+                key: razorpayKeyId,
                 amount: order.amount,
                 currency: order.currency || 'INR',
                 name: 'OnyxAI Platform',

@@ -1,10 +1,13 @@
 import "dotenv/config";
 import express from "express";
+import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./src/routes/auth.route.js";
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(express.json());
+app.use(cookieParser());
 const port = process.env.PORT;
 connectDB();
 
